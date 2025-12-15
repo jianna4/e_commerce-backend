@@ -1,9 +1,13 @@
 from django.shortcuts import render
-
-# Create your views here.
 from rest_framework import generics, permissions
-from .models import Category, Product, Order , SubCategory
-from .serializers import CategorySerializer, ProductSerializer, OrderSerializer,SubCategorySerializer
+from .models import Category, Product, Order, SubCategory
+from .serializers import (
+    CategorySerializer, 
+    CategoryDetailSerializer,  # IMPORT THIS
+    ProductSerializer, 
+    OrderSerializer,
+    SubCategorySerializer
+)
 from .permissions import IsStaffOrReadOnly, IsOwnerOrStaff
 
 # -------------------
@@ -11,12 +15,12 @@ from .permissions import IsStaffOrReadOnly, IsOwnerOrStaff
 # -------------------
 class CategoryListView(generics.ListCreateAPIView):
     queryset = Category.objects.all()
-    serializer_class = CategorySerializer
+    serializer_class = CategorySerializer  # Simple serializer for list
     permission_classes = [IsStaffOrReadOnly]
 
 class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Category.objects.all()
-    serializer_class = CategorySerializer
+    serializer_class = CategoryDetailSerializer  # USE CategoryDetailSerializer HERE
     permission_classes = [IsStaffOrReadOnly]
     lookup_field = 'slug'
 
@@ -24,7 +28,6 @@ class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
 # -------------------
 # subcategories
 # -------------------
-
 class SubCategoryListView(generics.ListCreateAPIView):
     queryset = SubCategory.objects.all()
     serializer_class = SubCategorySerializer
@@ -34,6 +37,8 @@ class SubCategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = SubCategory.objects.all()
     serializer_class = SubCategorySerializer
     permission_classes = [IsStaffOrReadOnly]
+
+
 # -------------------
 # Products
 # -------------------
@@ -46,6 +51,7 @@ class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [IsStaffOrReadOnly]
+
 
 # -------------------
 # Orders

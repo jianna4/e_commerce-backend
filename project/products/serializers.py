@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Product, Order, OrderItem ,SubCategory
+from .models import Category, SubCategory, Product
 
 # ----------------------
 # Category Serializer
@@ -7,68 +7,53 @@ from .models import Category, Product, Order, OrderItem ,SubCategory
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ['id', 'name', 'slug', 'description']
-
+        fields = ['id', 'name', 'slug', 'description', 'image']
 
 # ----------------------
 # SubCategory Serializer
 # ----------------------
 class SubCategorySerializer(serializers.ModelSerializer):
-    category = CategorySerializer(read_only=True)
-    category_id = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.all(), source='category', write_only=True
-    )
+    products = serializers.SerializerMethodField()  # We'll populate products under this subcategory
 
     class Meta:
         model = SubCategory
-        fields = ['id', 'name', 'category', 'category_id']
+        fields = ['id', 'name', 'products']
+
+    def get_products(self, obj):
+        return ProductSerializer(obj.products.all(), many=True).data
 
 # ----------------------
 # Product Serializer
 # ----------------------
 class ProductSerializer(serializers.ModelSerializer):
-    subcategory = SubCategorySerializer(read_only=True)
-    subcategory_id = serializers.PrimaryKeyRelatedField(
-        queryset=SubCategory.objects.all(), source='subcategory', write_only=True
-    )
-
     class Meta:
         model = Product
-        fields = ['id', 'name', 'slug', 'description', 'price', 'stock', 'available', 'subcategory', 'subcategory_id', 'image']
+        fields = ['id', 'name', 'slug', 'description', 'price', 'image', 'stock', 'available']
 
 # ----------------------
-# OrderItem Serializer
+# Category Detail Serializer (with hierarchy)
 # ----------------------
+class CategoryDetailSerializer(serializers.ModelSerializer):
+    subcategories = SubCategorySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'slug', 'description', 'image', 'subcategories']
+
+from rest_framework import serializers
+from .models import Order, OrderItem, Product
+
 class OrderItemSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
-    product_id = serializers.PrimaryKeyRelatedField(
-        queryset=Product.objects.all(), source='product', write_only=True
-    )
 
     class Meta:
         model = OrderItem
-        fields = ['id', 'product', 'product_id', 'quantity', 'price']
+        fields = ['id', 'product', 'quantity', 'price']
 
-# ----------------------
-# Order Serializer
-# ----------------------
 class OrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(many=True)
-    user = serializers.StringRelatedField(read_only=True)  # shows user email
+    items = OrderItemSerializer(many=True, read_only=True)
+    user = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         model = Order
         fields = ['id', 'user', 'status', 'total_price', 'created_at', 'updated_at', 'items']
-
-    def create(self, validated_data):
-        items_data = validated_data.pop('items')
-        user = self.context['request'].user
-        order = Order.objects.create(user=user, **validated_data)
-        for item_data in items_data:
-            OrderItem.objects.create(
-                order=order,
-                product=item_data['product'],
-                quantity=item_data['quantity'],
-                price=item_data['product'].price
-            )
-        return order
