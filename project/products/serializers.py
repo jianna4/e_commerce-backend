@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Product, Order, OrderItem
+from .models import Category, Product, Order, OrderItem ,SubCategory
 
 # ----------------------
 # Category Serializer
@@ -9,18 +9,32 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = ['id', 'name', 'slug', 'description']
 
+
 # ----------------------
-# Product Serializer
+# SubCategory Serializer
 # ----------------------
-class ProductSerializer(serializers.ModelSerializer):
+class SubCategorySerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(), source='category', write_only=True
     )
 
     class Meta:
+        model = SubCategory
+        fields = ['id', 'name', 'category', 'category_id']
+
+# ----------------------
+# Product Serializer
+# ----------------------
+class ProductSerializer(serializers.ModelSerializer):
+    subcategory = SubCategorySerializer(read_only=True)
+    subcategory_id = serializers.PrimaryKeyRelatedField(
+        queryset=SubCategory.objects.all(), source='subcategory', write_only=True
+    )
+
+    class Meta:
         model = Product
-        fields = ['id', 'name', 'slug', 'description', 'price', 'stock', 'available', 'category', 'category_id', 'image']
+        fields = ['id', 'name', 'slug', 'description', 'price', 'stock', 'available', 'subcategory', 'subcategory_id', 'image']
 
 # ----------------------
 # OrderItem Serializer
