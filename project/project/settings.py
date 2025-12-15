@@ -55,6 +55,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:8000',
     'http://127.0.0.1:3000',
     'http://127.0.0.1:8000',
+    "http://localhost:5173",  # Vite default
 ]
 
 # Alternative: Allow all origins during development (be careful in production)
