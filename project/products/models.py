@@ -11,16 +11,17 @@ from django.conf import settings
 from django.db import models
 
 class Category(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    slug = models.SlugField(unique=True)
-    description = models.TextField(blank=True)
-    image = models.ImageField(upload_to="categories/", blank=True)
+   name = models.CharField(max_length=100, unique=True)
+   slug = models.SlugField(unique=True)
 
-    is_active = models.BooleanField(default=True)
+   description = models.TextField(
+        default="General category description"
+    )
 
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
+   image = models.ImageField(upload_to="categories/")
+   is_active = models.BooleanField(default=True)
+   created_at = models.DateTimeField(auto_now_add=True)
+   def __str__(self):
         return self.name
 
 
