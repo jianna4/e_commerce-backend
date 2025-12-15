@@ -2,8 +2,8 @@ from django.shortcuts import render
 
 # Create your views here.
 from rest_framework import generics, permissions
-from .models import Category, Product, Order
-from .serializers import CategorySerializer, ProductSerializer, OrderSerializer
+from .models import Category, Product, Order , SubCategory
+from .serializers import CategorySerializer, ProductSerializer, OrderSerializer,SubCategorySerializer
 from .permissions import IsStaffOrReadOnly, IsOwnerOrStaff
 
 # -------------------
@@ -19,6 +19,20 @@ class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CategorySerializer
     permission_classes = [IsStaffOrReadOnly]
 
+
+# -------------------
+# subcategories
+# -------------------
+
+class SubCategoryListView(generics.ListCreateAPIView):
+    queryset = SubCategory.objects.all()
+    serializer_class = SubCategorySerializer
+    permission_classes = [IsStaffOrReadOnly]
+
+class SubCategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = SubCategory.objects.all()
+    serializer_class = SubCategorySerializer
+    permission_classes = [IsStaffOrReadOnly]
 # -------------------
 # Products
 # -------------------
