@@ -18,7 +18,8 @@ class Category(models.Model):
         default="General category description"
     )
 
-   image = models.ImageField(upload_to="categories/")
+   image = models.ImageField(upload_to="categories/",  blank=True,
+        null=True)
    is_active = models.BooleanField(default=True)
    created_at = models.DateTimeField(auto_now_add=True)
    def __str__(self):
