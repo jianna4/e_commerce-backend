@@ -198,3 +198,14 @@ SIMPLE_JWT = {
 # Ensure these are configured
 CSRF_TRUSTED_ORIGINS = ['https://yourdomain.com', 'http://localhost:8000']
 CORS_ALLOW_CREDENTIALS = True
+
+
+# Media files (uploaded images)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Add this at the end of the file
+if DEBUG:
+    # Serve media files in development
+    from django.conf.urls.static import static
+    urlpatterns = static(MEDIA_URL, document_root=MEDIA_ROOT)
