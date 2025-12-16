@@ -47,6 +47,8 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     image = models.ImageField(upload_to='products/', blank=True, null=True)
+    size = models.CharField(max_length=50, blank=True, null=True,
+                            help_text="Enter size range, e.g., S-XL or 38-44")
      # Popularity & ranking
     likes_count = models.PositiveIntegerField(default=0)
     views_count = models.PositiveIntegerField(default=0)
