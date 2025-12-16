@@ -61,10 +61,26 @@ class ProductImageSerializer(serializers.ModelSerializer):
 # ----------------------
 # Product Serializer
 # ----------------------
-class ProductSerializer(serializers.ModelSerializer):
+class ProductSerializer2(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['id', 'name', 'slug', 'description', 'price', 'image', 'stock', 'available']
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    colors = ProductColorSerializer(many=True, read_only=True)
+    images = ProductImageSerializer(many=True, read_only=True)
+    subcategory = SubCategorySerializer(read_only=True)
+
+    class Meta:
+        model = Product
+        fields = [
+            'id', 'name', 'slug', 'description', 'price', 'subcategory',
+            'stock', 'available', 'created_at', 'updated_at', 'image',
+            'size', 'likes_count', 'views_count', 'is_active', 'colors', 'images'
+        ]
+
+
 
 # ----------------------
 # Category Detail Serializer (with hierarchy)
