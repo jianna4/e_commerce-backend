@@ -9,17 +9,6 @@ from .models import (
     OrderItem
 )
 
-# ----------------------
-# Category Serializer
-# ----------------------
-class CategorySerializer(serializers.ModelSerializer):
-    subcategories = serializers.SerializerMethodField()
-    class Meta:
-        model = Category
-        fields = ['id', 'name', 'slug', 'description', 'image', 'is_active', 'created_at', 'subcategories']
-        # This method returns a list of subcategories for each category
-    def get_subcategories(self, obj):
-        return [{"id": sub.id, "name": sub.name} for sub in obj.subcategories.all()]
 
 
 
@@ -75,6 +64,19 @@ class SubCategorySerializer(serializers.ModelSerializer):
         model = SubCategory
         fields = ['id', 'name', 'category', 'products']
         depth = 1  # This will include related objects with their basic fields
+
+
+# ----------------------
+# Category Serializer
+# ----------------------
+class CategorySerializer(serializers.ModelSerializer):
+    subcategories = serializers.SerializerMethodField()
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'slug', 'description', 'image', 'is_active', 'created_at', 'subcategories']
+        # This method returns a list of subcategories for each category
+    def get_subcategories(self, obj):
+        return [{"id": sub.id, "name": sub.name} for sub in obj.subcategories.all()]
 
 
 
