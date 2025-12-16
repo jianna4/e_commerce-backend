@@ -38,6 +38,16 @@ class SubCategorySerializer(serializers.ModelSerializer):
         model = SubCategory
         fields = ['id', 'name', 'category']
 
+
+# --------------------
+# ProductColor Serializer
+# --------------------
+class ProductColorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductColor
+        fields = ['id', 'name', 'hex_code']
+
+        
 # ----------------------
 # Product Serializer
 # ----------------------
