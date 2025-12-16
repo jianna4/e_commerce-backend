@@ -25,9 +25,9 @@ def category_list(request):
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def category_detail(request, pk):
+def category_detail(request, slug):
     try:
-        category = Category.objects.get(pk=pk, is_active=True)
+        category = Category.objects.get(slug=slug, is_active=True)
     except Category.DoesNotExist:
         return Response({"detail": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
     
