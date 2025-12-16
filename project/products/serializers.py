@@ -13,6 +13,7 @@ from .models import (
 # Category Serializer
 # ----------------------
 class CategorySerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = Category
         fields = ['id', 'name', 'slug', 'description', 'image', 'is_active', 'created_at']
@@ -21,15 +22,7 @@ class CategorySerializer(serializers.ModelSerializer):
 # ----------------------
 # SubCategory Serializer
 # ----------------------
-class SubCategorySerializer2(serializers.ModelSerializer):
-    products = serializers.SerializerMethodField()  # We'll populate products under this subcategory
 
-    class Meta:
-        model = SubCategory
-        fields = ['id', 'name', 'products']
-
-    def get_products(self, obj):
-        return ProductSerializer(obj.products.all(), many=True).data
 
 class SubCategorySerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)  # nested category
@@ -61,10 +54,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
 # ----------------------
 # Product Serializer
 # ----------------------
-class ProductSerializer2(serializers.ModelSerializer):
-    class Meta:
-        model = Product
-        fields = ['id', 'name', 'slug', 'description', 'price', 'image', 'stock', 'available']
+
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -82,18 +72,8 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 
-# ----------------------
-# Category Detail Serializer (with hierarchy)
-# ----------------------
-class CategoryDetailSerializer(serializers.ModelSerializer):
-    subcategories = SubCategorySerializer(many=True, read_only=True)
 
-    class Meta:
-        model = Category
-        fields = ['id', 'name', 'slug', 'description', 'image', 'subcategories']
 
-from rest_framework import serializers
-from .models import Order, OrderItem, Product
 
 class OrderItemCreateSerializer(serializers.ModelSerializer):
     product_id = serializers.PrimaryKeyRelatedField(
