@@ -56,9 +56,9 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = [
-            'id', 'name', 'slug', 'description', 'price', 'subcategory',
-            'stock', 'available', 'created_at', 'updated_at', 'image',
-            'size', 'likes_count', 'views_count', 'is_active', 'colors', 'images'
+            'id', 'name', 'slug', 'description', 'price', 
+            'stock', 'created_at', 'updated_at', 'image',
+            'size', 'likes_count', 'views_count', 'colors', 'images'
         ]
 
 
@@ -74,6 +74,7 @@ class SubCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = SubCategory
         fields = ['id', 'name', 'category', 'products']
+        depth = 1  # This will include related objects with their basic fields
 
 
 
