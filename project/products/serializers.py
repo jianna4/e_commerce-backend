@@ -21,17 +21,6 @@ class CategorySerializer(serializers.ModelSerializer):
     def get_subcategories(self, obj):
         return [{"id": sub.id, "name": sub.name} for sub in obj.subcategories.all()]
 
-# ----------------------
-# SubCategory Serializer
-# ----------------------
-
-
-class SubCategorySerializer(serializers.ModelSerializer):
-    category = CategorySerializer(read_only=True)  # nested category
-
-    class Meta:
-        model = SubCategory
-        fields = ['id', 'name', 'category']
 
 
 # --------------------
@@ -62,7 +51,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     colors = ProductColorSerializer(many=True, read_only=True)
     images = ProductImageSerializer(many=True, read_only=True)
-    subcategory = SubCategorySerializer(read_only=True)
+    
 
     class Meta:
         model = Product
@@ -73,6 +62,18 @@ class ProductSerializer(serializers.ModelSerializer):
         ]
 
 
+# ----------------------
+# SubCategory Serializer
+# ----------------------
+
+
+class SubCategorySerializer(serializers.ModelSerializer):
+    products = ProductSerializer(many=True, read_only=True)  # <-- add this line or do asin the categoryto nestsubcategories
+
+    
+    class Meta:
+        model = SubCategory
+        fields = ['id', 'name', 'category']
 
 
 
