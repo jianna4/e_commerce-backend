@@ -35,9 +35,12 @@ class ProductAdmin(admin.ModelAdmin):
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 0
+    readonly_fields = ('price', 'total')  # auto-calculated, not editable
+    fields = ('product', 'quantity', 'size', 'color', 'price', 'total')  # order of fields
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'status', 'total_price', 'created_at']
     list_filter = ['status', 'created_at']
+    search_fields = ('user__email', 'id')
     inlines = [OrderItemInline]
