@@ -97,10 +97,18 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0, editable=False)
+
+    def update_total_price(self):
+        """Sum all order items' totals and update total_price"""
+        total = sum(item.total for item in self.items.all())
+        self.total_price = total
+        self.save(update_fields=['total_price'])
 
     def __str__(self):
         return f"Order {self.id} by {self.user.email}"
+
+
 
 # --------------------
 # OrderItem
