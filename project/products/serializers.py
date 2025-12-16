@@ -21,7 +21,7 @@ class CategorySerializer(serializers.ModelSerializer):
 # ----------------------
 # SubCategory Serializer
 # ----------------------
-class SubCategorySerializer(serializers.ModelSerializer):
+class SubCategorySerializer2(serializers.ModelSerializer):
     products = serializers.SerializerMethodField()  # We'll populate products under this subcategory
 
     class Meta:
@@ -30,6 +30,13 @@ class SubCategorySerializer(serializers.ModelSerializer):
 
     def get_products(self, obj):
         return ProductSerializer(obj.products.all(), many=True).data
+
+class SubCategorySerializer(serializers.ModelSerializer):
+    category = CategorySerializer(read_only=True)  # nested category
+
+    class Meta:
+        model = SubCategory
+        fields = ['id', 'name', 'category']
 
 # ----------------------
 # Product Serializer
