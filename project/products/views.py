@@ -3,7 +3,7 @@ from rest_framework import generics, permissions
 from .models import Category, Product, Order, SubCategory
 from .serializers import (
     CategorySerializer, 
-    CategoryDetailSerializer,  # IMPORT THIS
+      # IMPORT THIS
     ProductSerializer, 
     OrderSerializer,
     SubCategorySerializer
@@ -20,7 +20,7 @@ class CategoryListView(generics.ListCreateAPIView):
 
 class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Category.objects.all()
-    serializer_class = CategoryDetailSerializer  # USE CategoryDetailSerializer HERE
+    serializer_class = CategorySerializer  # USE CategoryDetailSerializer HERE
     permission_classes = [IsStaffOrReadOnly]
     lookup_field = 'slug'
 

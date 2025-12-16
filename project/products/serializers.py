@@ -75,85 +75,43 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 
-class OrderItemCreateSerializer(serializers.ModelSerializer):
-    product_id = serializers.PrimaryKeyRelatedField(
-        queryset=Product.objects.all(),
-        source="product"
-    )
-
-    class Meta:
-        model = OrderItem
-        fields = [
-            "product_id",
-            "quantity"
-        ]
-
 class OrderItemSerializer(serializers.ModelSerializer):
-    product = ProductSerializer(read_only=True)
+    product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
+    # Read-only fields for frontend display
+    product_detail = ProductSerializer(source='product', read_only=True)
+    total = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 
     class Meta:
         model = OrderItem
-        fields = [
-            "id",
-            "product",
-            "quantity",
-            "price"
-        ]
+        fields = ['id', 'product', 'product_detail', 'quantity', 'size', 'color', 'price', 'total']
+
+    def create(self, validated_data):
+        product = validated_data['product']
+        # Set price from product automatically
+        validated_data['price'] = product.price
+        # total will be calculated in model's save method
+        return super().create(validated_data)
+
+
+# --------------------
+# Order Serializer
+# --------------------
 class OrderSerializer(serializers.ModelSerializer):
-    # input (add to cart)
-    items = OrderItemCreateSerializer(
-        many=True,
-        write_only=True
-    )
-
-    # output (cart popup / order summary)
-    order_items = OrderItemSerializer(
-        many=True,
-        read_only=True,
-        source="items"
-    )
-
-    user = serializers.StringRelatedField(read_only=True)
+    items = OrderItemSerializer(many=True)
+    total_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    user = serializers.PrimaryKeyRelatedField(read_only=True)  # automatically set in view
 
     class Meta:
         model = Order
-        fields = [
-            "id",
-            "user",
-            "status",
-            "total_price",
-            "created_at",
-            "updated_at",
-            "items",
-            "order_items"
-        ]
+        fields = ['id', 'user', 'status', 'total_price', 'created_at', 'updated_at', 'items']
 
     def create(self, validated_data):
-        items_data = validated_data.pop("items")
-        user = self.context["request"].user
+        items_data = validated_data.pop('items')
+        order = Order.objects.create(**validated_data)
 
-        order = Order.objects.create(
-            user=user,
-            status="pending"
-        )
+        for item_data in items_data:
+            OrderItem.objects.create(order=order, **item_data)
 
-        total_price = 0
-
-        for item in items_data:
-            product = item["product"]
-            quantity = item["quantity"]
-
-            OrderItem.objects.create(
-                order=order,
-                product=product,
-                quantity=quantity,
-                price=product.price
-            )
-
-            total_price += product.price * quantity
-
-        order.total_price = total_price
-        order.save()
-
+        # update order total_price after adding items
+        order.update_total_price()
         return order
-
