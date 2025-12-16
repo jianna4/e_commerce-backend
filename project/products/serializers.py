@@ -47,7 +47,17 @@ class ProductColorSerializer(serializers.ModelSerializer):
         model = ProductColor
         fields = ['id', 'name', 'hex_code']
 
-        
+
+# --------------------
+# ProductImage Serializer
+# --------------------
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ['id', 'image']
+
+
+
 # ----------------------
 # Product Serializer
 # ----------------------
