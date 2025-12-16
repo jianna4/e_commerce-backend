@@ -19,7 +19,7 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug', 'description', 'image', 'is_active', 'created_at', 'subcategories']
         # This method returns a list of subcategories for each category
     def get_subcategories(self, obj):
-        return [{"id": sub.id, "name": sub.name, "slug": sub.slug} for sub in obj.subcategories.all()]
+        return [{"id": sub.id, "name": sub.name} for sub in obj.subcategories.all()]
 
 # ----------------------
 # SubCategory Serializer
