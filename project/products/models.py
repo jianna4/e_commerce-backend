@@ -123,7 +123,7 @@ class OrderItem(models.Model):
     size = models.CharField(max_length=50, blank=True, null=True, help_text="Optional size")
     color = models.CharField(max_length=50, blank=True, null=True, help_text="Optional color")
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    total = models.DecimalField(max_digits=10, decimal_places=2, editable=False)  # new field
+    total = models.DecimalField(max_digits=10, decimal_places=2, editable=False,blank=True, null=True)  # new field
 
     def save(self, *args, **kwargs):
          # Set price from product if not already set
