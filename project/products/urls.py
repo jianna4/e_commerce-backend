@@ -1,21 +1,28 @@
 from django.urls import path
-from .views import (
-    CategoryListView, CategoryDetailView,
-    SubCategoryListView, SubCategoryDetailView,
-    ProductListView, ProductDetailView,
-    OrderListView, OrderDetailView,
-)
+from . import views
 
 urlpatterns = [
-    path('categories/', CategoryListView.as_view()),
-    path('categories/<slug:slug>/', CategoryDetailView.as_view()),
+    # --------------------
+    # Categories
+    # --------------------
+    path('categories/', views.category_list, name='category-list'),
+    path('categories/<slug:slug>/', views.category_detail, name='category-detail'),
 
-    path('subcategories/', SubCategoryListView.as_view()),
-    path('subcategories/<int:pk>/', SubCategoryDetailView.as_view()),
+    # --------------------
+    # Subcategories
+    # --------------------
+    path('subcategories/', views.subcategory_list, name='subcategory-list'),
+    path('subcategories/<int:pk>/', views.subcategory_detail, name='subcategory-detail'),
 
-    path('products/', ProductListView.as_view()),
-    path('products/<int:pk>/', ProductDetailView.as_view()),
+    # --------------------
+    # Products
+    # --------------------
+    path('products/', views.product_list, name='product-list'),
+    path('products/<int:pk>/', views.product_detail, name='product-detail'),
 
-    path('orders/', OrderListView.as_view()),
-    path('orders/<int:pk>/', OrderDetailView.as_view()),
+    # --------------------
+    # Orders
+    # --------------------
+    path('orders/', views.order_list, name='order-list'),
+    path('orders/create/', views.order_create, name='order-create'),
 ]
