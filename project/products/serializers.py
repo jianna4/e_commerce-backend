@@ -13,11 +13,13 @@ from .models import (
 # Category Serializer
 # ----------------------
 class CategorySerializer(serializers.ModelSerializer):
-    
+    subcategories = serializers.SerializerMethodField()
     class Meta:
         model = Category
-        fields = ['id', 'name', 'slug', 'description', 'image', 'is_active', 'created_at']
-
+        fields = ['id', 'name', 'slug', 'description', 'image', 'is_active', 'created_at', 'subcategories']
+        # This method returns a list of subcategories for each category
+    def get_subcategories(self, obj):
+        return [{"id": sub.id, "name": sub.name, "slug": sub.slug} for sub in obj.subcategories.all()]
 
 # ----------------------
 # SubCategory Serializer
