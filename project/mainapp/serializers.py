@@ -11,8 +11,8 @@ class RegisterSerializer(serializers.ModelSerializer):
     
     def get_initials(self,obj):
         if obj.full_name:
-         names= obj.full_name.strip().split()
-         return ''.join([name[0].upper() for name in names[:2]])
+          names= obj.full_name.strip().split()
+          return ''.join([name[0].upper() for name in names[:2]])
         return obj.email[0].upper()
 
 
