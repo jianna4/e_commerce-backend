@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'mainapp',
     'products',
@@ -193,10 +194,13 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True, # Rotate refresh tokens after the access token is used
+    'BLACKLIST_AFTER_ROTATION': True, # Blacklist old refresh tokens
+
 }
 
 # Ensure these are configured
-CSRF_TRUSTED_ORIGINS = ['https://yourdomain.com', 'http://localhost:8000']
+CSRF_TRUSTED_ORIGINS = ['https://mydomain.com', 'http://localhost:8000']
 CORS_ALLOW_CREDENTIALS = True
 
 
