@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Sum
 
 # Create your models here.
 
@@ -47,8 +48,7 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     image = models.ImageField(upload_to='products/', blank=True, null=True)
-    size = models.CharField(max_length=50, blank=True, null=True,
-                            help_text="Enter size range, e.g., S-XL or 38-44")
+    
      # Popularity & ranking
     likes_count = models.PositiveIntegerField(default=0)
     views_count = models.PositiveIntegerField(default=0)
@@ -56,7 +56,22 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
-    
+   
+def update_product_stock(product):
+    """
+    Recalculates and updates the total stock for a product
+    based on all ProductSizeColor quantities.
+    """
+    total = ProductSizeColor.objects.filter(
+        product_size__product=product
+    ).aggregate(total=Sum('quantity'))['total'] or 0
+
+    # Only update if value changed (optional optimization)
+    if product.stock != total:
+        product.stock = total
+        product.save(update_fields=['stock'])
+
+
 #the sizes are stored ,diff sizeor a product,it has its colors,the colors have quantity
 class productsizes(models.Model):
     product=models.ForeignKey(Product, related_name="sizes",on_delete=models.CASCADE)
@@ -84,19 +99,7 @@ class ProductSizeColor(models.Model):
     
 
 
-class ProductColor(models.Model):
-    product = models.ForeignKey(
-        Product,
-        related_name="colors",
-        on_delete=models.CASCADE
-    )
 
-    name = models.CharField(max_length=50)   # e.g. Red
-    hex_code = models.CharField(max_length=7)  # e.g. #FF0000
-
-    def __str__(self):
-        return f"{self.product.name} - {self.name}"
-    
 
 
 class ProductImage(models.Model):
@@ -111,9 +114,7 @@ class ProductImage(models.Model):
     def __str__(self):
         return f"Image for {self.product.name}"
 
-# --------------------
-# Order
-# --------------------
+
 class Order(models.Model):
     STATUS_CHOICES = (
         ('pending', 'Pending'),
@@ -139,9 +140,7 @@ class Order(models.Model):
 
 
 
-# --------------------
-# OrderItem
-# --------------------
+#order item
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
