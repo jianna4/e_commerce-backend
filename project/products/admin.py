@@ -2,7 +2,7 @@
 
 # Register your models here.
 from django.contrib import admin
-from .models import Category, Product, Order, OrderItem ,SubCategory ,ProductColor ,ProductImage
+from .models import Category, Product, Order, OrderItem ,SubCategory,ProductImage ,productsizes ,ProductSizeColor
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -20,8 +20,12 @@ class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
 
-class ProductColorInline(admin.TabularInline):
-    model = ProductColor
+class ProductSizeInline(admin.TabularInline):
+    model = productsizes
+    extra = 1
+
+class ProductSizeColorInline(admin.TabularInline):
+    model = ProductSizeColor
     extra = 1
 
 @admin.register(Product)
@@ -30,7 +34,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_filter = ['available', 'subcategory']
     search_fields = ['name', 'description']
     prepopulated_fields = {'slug': ('name',)}
-    inlines = [ProductImageInline, ProductColorInline]
+    inlines = [ProductImageInline, ProductSizeInline, ProductSizeColorInline]
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
