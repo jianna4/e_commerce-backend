@@ -161,3 +161,18 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name}"
+
+
+#to auto update stock of products
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+
+@receiver(post_save, sender=ProductSizeColor)
+def update_stock_on_color_save(sender, instance, **kwargs):
+    product = instance.product_size.product
+    update_product_stock(product)
+
+@receiver(post_delete, sender=ProductSizeColor)
+def update_stock_on_color_delete(sender, instance, **kwargs):
+    product = instance.product_size.product
+    update_product_stock(product)
