@@ -17,23 +17,23 @@ class SubCategoryAdmin(admin.ModelAdmin):
     search_fields = ['name', 'category__name']
     list_filter = ('category',)
 
-class ProductImageInline(admin.TabularInline):
+class ProductImageInline(nested_admin.NestedTabularInline):
     model = ProductImage
     extra = 1
 
-class ProductSizeColorInline(admin.TabularInline):
+class ProductSizeColorInline(nested_admin.NestedTabularInline):
     model = ProductSizeColor
     extra = 1
     fields = ['color_name', 'hex_code', 'quantity']  # quantity is editable here!
 
-class ProductSizeInline(admin.TabularInline):
+class ProductSizeInline(nested_admin.NestedTabularInline):
     model = productsizes
     extra = 1
     inlines = [ProductSizeColorInline]
 
 
 @admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
+class ProductAdmin(nested_admin.NestedModelAdmin):
     list_display = ['name', 'price', 'stock', 'available', 'subcategory', 'created_at']
     list_filter = ['available', 'subcategory']
     search_fields = ['name', 'description']
