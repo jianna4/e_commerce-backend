@@ -24,6 +24,7 @@ class ProductImageInline(admin.TabularInline):
 class ProductSizeColorInline(admin.TabularInline):
     model = ProductSizeColor
     extra = 1
+    fields = ['color_name', 'hex_code', 'quantity']  # quantity is editable here!
 
 class ProductSizeInline(admin.TabularInline):
     model = productsizes
@@ -37,6 +38,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_filter = ['available', 'subcategory']
     search_fields = ['name', 'description']
     prepopulated_fields = {'slug': ('name',)}
+    readonly_fields =['stock','created_at', 'updated_at']
     inlines = [ProductImageInline, ProductSizeInline]
 
 class OrderItemInline(admin.TabularInline):
