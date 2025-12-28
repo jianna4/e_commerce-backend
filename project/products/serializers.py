@@ -39,7 +39,7 @@ class ProductSizeSerializer(serializers.ModelSerializer):
     colors = ProductColorSerializer(many=True, read_only=True)
     class Meta:
         model = productsizes
-        fields = ['id', 'waist_shoe_size','hips', 'height']
+        fields = ['id', 'waist_shoe_size','hips', 'height','colors']
 
 
 #product serializer
