@@ -3,6 +3,7 @@
 # Register your models here.
 from django.contrib import admin
 from .models import Category, Product, Order, OrderItem ,SubCategory,ProductImage ,productsizes ,ProductSizeColor
+import nested_admin
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -20,13 +21,15 @@ class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
 
-class ProductSizeInline(admin.TabularInline):
-    model = productsizes
-    extra = 1
-
 class ProductSizeColorInline(admin.TabularInline):
     model = ProductSizeColor
     extra = 1
+
+class ProductSizeInline(admin.TabularInline):
+    model = productsizes
+    extra = 1
+    inlines = [ProductSizeColorInline]
+
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
@@ -34,7 +37,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_filter = ['available', 'subcategory']
     search_fields = ['name', 'description']
     prepopulated_fields = {'slug': ('name',)}
-    inlines = [ProductImageInline, ProductSizeInline, ProductSizeColorInline]
+    inlines = [ProductImageInline, ProductSizeInline]
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
