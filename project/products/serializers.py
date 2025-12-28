@@ -3,7 +3,8 @@ from .models import (
     Category,
     SubCategory,
     Product,
-    ProductColor,
+    productsizes ,
+    ProductSizeColor,
     ProductImage,
     Order,
     OrderItem
@@ -17,8 +18,8 @@ from .models import (
 # --------------------
 class ProductColorSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ProductColor
-        fields = ['id', 'name', 'hex_code']
+        model = ProductSizeColor
+        fields = ['id', 'color_name', 'hex_code', 'quantity']
 
 
 # --------------------
