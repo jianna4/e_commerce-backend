@@ -56,6 +56,15 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+    
+#the sizes are stored ,diff sizeor a product,it has its colors,the colors have quantity
+class productsizes(models.Model):
+    product=models.ForeignKey(Product, related_name="sizes",on_delete=models.CASCADE)
+    waist_shoe_size=models.CharField(max_length=50 ,help_text="sizes eg ehither S M L XL or 38 40 42")
+    hips=models.CharField( max_length=50, blank=True, null=True)
+    height=models.CharField( max_length=50, blank=True, null=True,help_text="height of shoeor trouser or  dress")
+    
+
 
 class ProductColor(models.Model):
     product = models.ForeignKey(
