@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'mainapp',
     'products',
+    'nested_admin', #for nested inlines
 ]
 
 AUTH_USER_MODEL = 'mainapp.User'

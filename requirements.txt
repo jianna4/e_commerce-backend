@@ -5,3 +5,4 @@ djang0-cors-headers
 python-dotenv
 djangorestframework-simplejwt
 pillow
+django-nested-admin
