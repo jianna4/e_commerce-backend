@@ -32,23 +32,28 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 
 
-# ----------------------
-# Product Serializer
-# ----------------------
+
+#productsizes serializer
+
+class ProductSizeSerializer(serializers.ModelSerializer):
+    colors = ProductColorSerializer(many=True, read_only=True)
+    class Meta:
+        model = productsizes
+        fields = ['id', 'waist_shoe_size','hips', 'height']
 
 
+#product serializer
 
 class ProductSerializer(serializers.ModelSerializer):
-    colors = ProductColorSerializer(many=True, read_only=True)
     images = ProductImageSerializer(many=True, read_only=True)
-    
+    sizes = ProductSizeSerializer(many=True, read_only=True)
 
     class Meta:
         model = Product
         fields = [
             'id', 'name', 'slug', 'description', 'price', 
             'stock', 'created_at', 'updated_at', 'image',
-            'size', 'likes_count', 'views_count', 'colors', 'images'
+             'likes_count', 'views_count','sizes', 'images'
         ]
 
 
