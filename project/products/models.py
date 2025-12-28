@@ -63,6 +63,24 @@ class productsizes(models.Model):
     waist_shoe_size=models.CharField(max_length=50 ,help_text="sizes eg ehither S M L XL or 38 40 42")
     hips=models.CharField( max_length=50, blank=True, null=True)
     height=models.CharField( max_length=50, blank=True, null=True,help_text="height of shoeor trouser or  dress")
+    def __str__(self):
+        return f"{self.product.name} - {self.waist_shoe_size}"
+
+
+#now the prduct color for each of thesizes
+class ProductSizeColor(models.Model):
+    product_size = models.ForeignKey(
+        productsizes,
+        related_name="size_colors",
+        on_delete=models.CASCADE
+    )
+
+    color_name = models.CharField(max_length=50)   
+    hex_code = models.CharField(max_length=7 , blank=True, null=True)  
+    quantity = models.PositiveIntegerField(default=0)  # Stock quantity for this size-color combination
+
+    def __str__(self):
+        return f"{self.product_size.product.name} - {self.color_name} ({self.product_size.waist_shoe_size})"
     
 
 
