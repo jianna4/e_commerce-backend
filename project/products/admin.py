@@ -2,7 +2,7 @@
 
 # Register your models here.
 from django.contrib import admin
-from .models import Category, Product, Order, OrderItem ,SubCategory,ProductImage ,productsizes ,ProductSizeColor ,Offer
+from .models import Category, Product, Order, OrderItem ,SubCategory,ProductImage ,productsizes ,ProductSizeColor ,Offer,MainOffer
 import nested_admin
 
 @admin.register(Category)
@@ -34,7 +34,7 @@ class ProductSizeInline(nested_admin.NestedTabularInline):
 class OfferInline(nested_admin.NestedTabularInline):
     model = Offer
     extra = 1
-    fields = ['title', 'description', 'new_price', 'start_date', 'end_date']
+    fields = [ 'campaign', 'new_price', 'old_price', 'percentage_off', 'is_active',]
     readonly_fields = ['old_price', 'is_active', 'percentage_off']
 
 
@@ -59,3 +59,14 @@ class OrderAdmin(admin.ModelAdmin):
     list_filter = ['status', 'created_at']
     search_fields = ('user__email', 'id')
     inlines = [OrderItemInline]
+
+@admin.register(MainOffer)
+class MainOfferAdmin(admin.ModelAdmin):
+    list_display = [
+        'title', 'description', 'start_date',
+        'end_date', 'is_active'
+    ]
+
+    readonly_fields = ['is_active']
+    list_filter = ['is_active', 'start_date', 'end_date']
+    search_fields = ['title']

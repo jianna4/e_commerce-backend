@@ -118,7 +118,7 @@ class ProductImage(models.Model):
 
 
 #offer identifications
-class OfferCampaign(models.Model):
+class MainOffer(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     start_date = models.DateTimeField()
@@ -135,7 +135,7 @@ class OfferCampaign(models.Model):
     
     
 class Offer(models.Model):
-    campaign = models.ForeignKey(OfferCampaign, on_delete=models.CASCADE, related_name="offers", blank=True, null=True)
+    campaign = models.ForeignKey(MainOffer, on_delete=models.CASCADE, related_name="offers", blank=True, null=True)
     product=models.ForeignKey(Product, on_delete=models.CASCADE, related_name="offers")
    
     new_price=models.DecimalField(max_digits=10, decimal_places=2)
