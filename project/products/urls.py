@@ -26,4 +26,8 @@ urlpatterns = [
     # --------------------
     path('orders/', views.order_list, name='order-list'),
     path('orders/create/', views.order_create, name='order-create'),
+
+    #offers
+    path('offers/', views.active_offers, name='offer-list'),
+   
 ]
