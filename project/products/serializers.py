@@ -15,6 +15,8 @@ from django.utils import timezone
 
 
 #offer serializer
+
+
 class MainOfferSerializer(serializers.ModelSerializer):
     is_active = serializers.ReadOnlyField()
 
@@ -67,50 +69,34 @@ class ProductSizeSerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
     sizes = ProductSizeSerializer(many=True, read_only=True)
-
-    display_price = serializers.SerializerMethodField()
-    discount_percentage = serializers.SerializerMethodField()
+    display_price=serializers.SerializerMethodField()
+    active_offer = serializers.SerializerMethodField()
     class Meta:
         model = Product
         fields = [
-            'id', 'name', 'slug', 'description','display_price','discount_percentage'
-            , 'price', 
-            'stock', 'created_at', 'updated_at', 'image',
-            'likes_count', 'views_count', 'sizes', 'images', 'offers'
+            'id', 'name', 'slug', 'description','display_price',
+            'price', 'stock', 'created_at', 'updated_at', 'image',
+            'likes_count', 'views_count', 'sizes', 'images', 'offers', 'active_offer'
         ]
 
-    def _get_active_offer(self, product):
-        """
-        Helper: Returns the first active Offer for this product,
-        based on current time and campaign dates.
-        """
+    def _get_active_offer_obj(self, product):
+        """Return the Offer object if active, else None."""
         now = timezone.now()
         return Offer.objects.filter(
             product=product,
             campaign__start_date__lte=now,
             campaign__end_date__gte=now
-        ).first()
+        ).select_related('campaign').first()
 
     def get_display_price(self, obj):
-        """
-        Returns the sale price if an active offer exists,
-        otherwise returns the regular product price.
-        Output as string to preserve decimal format in JSON.
-        """
-        active_offer = self._get_active_offer(obj)
-        if active_offer:
-            return str(active_offer.new_price)
-        return str(obj.price)
-
-    def get_discount_percentage(self, obj):
-        """
-        Returns the discount percentage if an active offer exists,
-        otherwise returns 0.
-        """
-        active_offer = self._get_active_offer(obj)
-        if active_offer:
-            return active_offer.percentage_off
-        return 0
+        offer = self._get_active_offer_obj(obj)
+        return str(offer.new_price) if offer else str(obj.price)
+    def get_active_offer(self, obj):
+   
+     offer = self._get_active_offer_obj(obj)
+     if offer:
+        return OfferSerializer(offer, context=self.context).data
+     return None
 
 
 
