@@ -10,6 +10,8 @@ from .serializers import (
     ProductSerializer,
     OrderSerializer
 )
+from django.utils import timezone
+
 
 
 # --------------------
@@ -89,6 +91,19 @@ def product_detail(request, pk):
     return Response(serializer.data)
 
 
+#active offers
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def active_offers(request):
+    now = timezone.now()
+    # Only return products with active offers
+    products = Product.objects.filter(
+        offers__start_date__lte=now, 
+        offers__end_date__gte=now
+    ).distinct()
+
+    serializer = ProductSerializer(products, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 # --------------------
 # Orders
 # --------------------
