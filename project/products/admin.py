@@ -34,8 +34,8 @@ class ProductSizeInline(nested_admin.NestedTabularInline):
 class OfferInline(nested_admin.NestedTabularInline):
     model = Offer
     extra = 1
-    fields = [ 'campaign', 'new_price', 'old_price', 'percentage_off', 'is_active',]
-    readonly_fields = ['old_price', 'is_active', 'percentage_off']
+    fields = [ 'campaign', 'new_price', 'old_price', 'percentage_off']
+    readonly_fields = ['old_price', 'percentage_off']
 
 
 @admin.register(Product)
