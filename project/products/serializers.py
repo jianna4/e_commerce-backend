@@ -6,12 +6,22 @@ from .models import (
     productsizes ,
     ProductSizeColor,
     ProductImage,
+    Offer,
     Order,
-    OrderItem
+    OrderItem,
 )
 
 
+#offer serializer
+class OfferSerializer(serializers.ModelSerializer):
+    old_price = serializers.DecimalField(
+        max_digits=10, decimal_places=2, source='old_price', read_only=True
+    )
+    is_active = serializers.BooleanField(source='is_active', read_only=True)
 
+    class Meta:
+        model = Offer
+        fields = ['id', 'title', 'description', 'new_price', 'old_price', 'start_date', 'end_date', 'is_active']
 
 # --------------------
 # ProductColor Serializer
@@ -47,13 +57,14 @@ class ProductSizeSerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
     sizes = ProductSizeSerializer(many=True, read_only=True)
+    offers = OfferSerializer(many=True, read_only=True) 
 
     class Meta:
         model = Product
         fields = [
             'id', 'name', 'slug', 'description', 'price', 
             'stock', 'created_at', 'updated_at', 'image',
-             'likes_count', 'views_count','sizes', 'images'
+            'likes_count', 'views_count', 'sizes', 'images', 'offers'
         ]
 
 
