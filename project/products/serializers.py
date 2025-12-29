@@ -10,6 +10,7 @@ from .models import (
     Order,
     OrderItem,
 )
+from django.utils import timezone
 
 
 #offer serializer
@@ -66,6 +67,11 @@ class ProductSerializer(serializers.ModelSerializer):
             'stock', 'created_at', 'updated_at', 'image',
             'likes_count', 'views_count', 'sizes', 'images', 'offers'
         ]
+
+    def get_offers(self, obj):
+        now = timezone.now()
+        active_offers = obj.offers.filter(start_date__lte=now, end_date__gte=now)
+        return OfferSerializer(active_offers, many=True).data
 
 
 # ----------------------
