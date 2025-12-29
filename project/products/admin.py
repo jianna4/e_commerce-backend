@@ -45,7 +45,7 @@ class ProductAdmin(nested_admin.NestedModelAdmin):
     search_fields = ['name', 'description']
     prepopulated_fields = {'slug': ('name',)}
     readonly_fields =['stock','created_at', 'updated_at']
-    inlines = [ProductImageInline, ProductSizeInline]
+    inlines = [ProductImageInline, ProductSizeInline , OfferInline]
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
