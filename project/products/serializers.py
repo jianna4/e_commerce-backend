@@ -15,30 +15,23 @@ from django.utils import timezone
 
 
 #offer serializer
-class OfferSerializer(serializers.ModelSerializer):
-    
-    product_name = serializers.CharField(source='product.name', read_only=True)
-    campaign_title = serializers.CharField(source='campaign.title', read_only=True)
-
-    class Meta:
-        model = Offer
-        fields = [
-            'id', 'product', 'product_name', 'new_price',
-            'old_price', 'percentage_off', 'campaign', 'campaign_title'
-        ]
-
-
 class MainOfferSerializer(serializers.ModelSerializer):
-    offers = OfferSerializer(many=True, read_only=True)
     is_active = serializers.ReadOnlyField()
 
     class Meta:
         model = MainOffer
-        fields = [
-            'id', 'title', 'description', 'start_date',
-            'end_date', 'is_active', 'offers'
-        ]
+        fields = ['id', 'title', 'description', 'start_date', 'end_date', 'is_active']
 
+class OfferSerializer(serializers.ModelSerializer):
+    campaign = MainOfferSerializer(read_only=True)  # ← nested campaign info
+    product_name = serializers.CharField(source='product.name', read_only=True)
+
+    class Meta:
+        model = Offer
+        fields = [
+            'id', 'new_price', 'old_price', 'percentage_off',
+            'campaign', 'product_name'
+        ]
 
 # --------------------
 # ProductColor Serializer
@@ -80,7 +73,8 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = [
-            'id', 'name', 'slug', 'description', 'price', 
+            'id', 'name', 'slug', 'description','display_price','discount_percentage'
+            , 'price', 
             'stock', 'created_at', 'updated_at', 'image',
             'likes_count', 'views_count', 'sizes', 'images', 'offers'
         ]
