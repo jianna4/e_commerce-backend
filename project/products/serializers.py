@@ -7,6 +7,7 @@ from .models import (
     ProductSizeColor,
     ProductImage,
     Offer,
+    MainOffer,
     Order,
     OrderItem,
 )
@@ -15,14 +16,29 @@ from django.utils import timezone
 
 #offer serializer
 class OfferSerializer(serializers.ModelSerializer):
-    old_price = serializers.DecimalField(
-        max_digits=10, decimal_places=2, source='old_price', read_only=True
-    )
-    is_active = serializers.BooleanField(source='is_active', read_only=True)
+    
+    product_name = serializers.CharField(source='product.name', read_only=True)
+    campaign_title = serializers.CharField(source='campaign.title', read_only=True)
 
     class Meta:
         model = Offer
-        fields = ['id', 'title', 'description', 'new_price', 'old_price', 'start_date', 'end_date', 'is_active']
+        fields = [
+            'id', 'product', 'product_name', 'new_price',
+            'old_price', 'percentage_off', 'campaign', 'campaign_title'
+        ]
+
+
+class MainOfferSerializer(serializers.ModelSerializer):
+    offers = OfferSerializer(many=True, read_only=True)
+    is_active = serializers.ReadOnlyField()
+
+    class Meta:
+        model = MainOffer
+        fields = [
+            'id', 'title', 'description', 'start_date',
+            'end_date', 'is_active', 'offers'
+        ]
+
 
 # --------------------
 # ProductColor Serializer
@@ -58,8 +74,9 @@ class ProductSizeSerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
     sizes = ProductSizeSerializer(many=True, read_only=True)
-    offers = OfferSerializer(many=True, read_only=True) 
 
+    display_price = serializers.SerializerMethodField()
+    discount_percentage = serializers.SerializerMethodField()
     class Meta:
         model = Product
         fields = [
@@ -68,10 +85,39 @@ class ProductSerializer(serializers.ModelSerializer):
             'likes_count', 'views_count', 'sizes', 'images', 'offers'
         ]
 
-    def get_offers(self, obj):
+    def _get_active_offer(self, product):
+        """
+        Helper: Returns the first active Offer for this product,
+        based on current time and campaign dates.
+        """
         now = timezone.now()
-        active_offers = obj.offers.filter(start_date__lte=now, end_date__gte=now)
-        return OfferSerializer(active_offers, many=True).data
+        return Offer.objects.filter(
+            product=product,
+            campaign__start_date__lte=now,
+            campaign__end_date__gte=now
+        ).first()
+
+    def get_display_price(self, obj):
+        """
+        Returns the sale price if an active offer exists,
+        otherwise returns the regular product price.
+        Output as string to preserve decimal format in JSON.
+        """
+        active_offer = self._get_active_offer(obj)
+        if active_offer:
+            return str(active_offer.new_price)
+        return str(obj.price)
+
+    def get_discount_percentage(self, obj):
+        """
+        Returns the discount percentage if an active offer exists,
+        otherwise returns 0.
+        """
+        active_offer = self._get_active_offer(obj)
+        if active_offer:
+            return active_offer.percentage_off
+        return 0
+
 
 
 # ----------------------
