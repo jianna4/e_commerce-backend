@@ -115,6 +115,32 @@ class ProductImage(models.Model):
         return f"Image for {self.product.name}"
 
 
+class Offer(models.Model):
+    product=models.ForeignKey(Product, on_delete=models.CASCADE, related_name="offers")
+    title=models.CharField( max_length=100)
+    description=models.TextField()
+    new_price=models.DecimalField(max_digits=10, decimal_places=2)
+    start_date=models.DateTimeField()
+    end_date=models.DateTimeField()
+    def __str__(self):
+        return f"Offer: {self.title} for {self.product.name}"
+    @property
+    def old_price(self):
+        return self.product.price
+    @property
+    def is_active(self):
+        from django.utils import timezone
+        now = timezone.now()
+        return self.start_date <= now <= self.end_date
+    
+    def save(self, *args, **kwargs):
+        # Calculate percentage_off before saving
+        try:
+            self.percentage_off = round((self.old_price - self.new_price) / self.old_price * 100)
+        except ZeroDivisionError:
+            self.percentage_off = 0
+        super().save(*args, **kwargs)
+
 class Order(models.Model):
     STATUS_CHOICES = (
         ('pending', 'Pending'),
