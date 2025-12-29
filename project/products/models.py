@@ -86,7 +86,7 @@ class productsizes(models.Model):
 class ProductSizeColor(models.Model):
     product_size = models.ForeignKey(
         productsizes,
-        related_name="size_colors",
+        related_name="colors",
         on_delete=models.CASCADE
     )
 
