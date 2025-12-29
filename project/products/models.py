@@ -116,18 +116,34 @@ class ProductImage(models.Model):
         return f"Image for {self.product.name}"
 
 
+
+#offer identifications
+class OfferCampaign(models.Model):
+    title = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    is_active = models.BooleanField(default=False, editable=False)
+
+    def save(self, *args, **kwargs):
+        now = timezone.now()
+        self.is_active = self.start_date <= now <= self.end_date
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.title
+    
+    
 class Offer(models.Model):
+    campaign = models.ForeignKey(OfferCampaign, on_delete=models.CASCADE, related_name="offers", blank=True, null=True)
     product=models.ForeignKey(Product, on_delete=models.CASCADE, related_name="offers")
-    title=models.CharField( max_length=100)
-    description=models.TextField()
+   
     new_price=models.DecimalField(max_digits=10, decimal_places=2)
     old_price = models.DecimalField(max_digits=10, decimal_places=2, editable=False, default=0)
     percentage_off = models.PositiveIntegerField(default=0, editable=False)
     is_active = models.BooleanField(default=False, editable=False)
-    start_date=models.DateTimeField()
-    end_date=models.DateTimeField()
-    def __str__(self):
-        return f"Offer: {self.title} for {self.product.name}"
+
+    
     def save(self, *args, **kwargs):
         # Store old_price and percentage_off in the DB
         self.old_price = self.product.price
@@ -135,13 +151,14 @@ class Offer(models.Model):
             self.percentage_off = round((self.old_price - self.new_price) / self.old_price * 100)
         except ZeroDivisionError:
             self.percentage_off = 0
-        # Update is_active based on current time
-        now = timezone.now()
-        self.is_active = self.start_date <= now <= self.end_date
+        
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Offer: {self.title} for {self.product.name}"
     
 
-
+    
 class Order(models.Model):
     STATUS_CHOICES = (
         ('pending', 'Pending'),
