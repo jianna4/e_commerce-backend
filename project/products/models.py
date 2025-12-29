@@ -123,12 +123,14 @@ class MainOffer(models.Model):
     description = models.TextField(blank=True)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
-    is_active = models.BooleanField(default=False, editable=False)
+    
 
-    def save(self, *args, **kwargs):
+    @property
+    def is_active(self):
+        """Dynamically check if offer is active based on current time."""
         now = timezone.now()
-        self.is_active = self.start_date <= now <= self.end_date
-        super().save(*args, **kwargs)
+        return self.start_date <= now <= self.end_date
+
 
     def __str__(self):
         return self.title
@@ -156,7 +158,7 @@ class Offer(models.Model):
     def __str__(self):
         if self.campaign:
          return f"{self.campaign.title} - {self.product.name}"
-        return  {self.product.name}
+        return  self.product.name
     
 
     
