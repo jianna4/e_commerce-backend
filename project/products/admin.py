@@ -68,5 +68,5 @@ class MainOfferAdmin(admin.ModelAdmin):
     ]
 
     readonly_fields = ['is_active']
-    list_filter = ['is_active', 'start_date', 'end_date']
+    list_filter = [ 'start_date', 'end_date']
     search_fields = ['title']
