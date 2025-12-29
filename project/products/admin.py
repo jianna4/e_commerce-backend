@@ -2,7 +2,7 @@
 
 # Register your models here.
 from django.contrib import admin
-from .models import Category, Product, Order, OrderItem ,SubCategory,ProductImage ,productsizes ,ProductSizeColor
+from .models import Category, Product, Order, OrderItem ,SubCategory,ProductImage ,productsizes ,ProductSizeColor ,Offer
 import nested_admin
 
 @admin.register(Category)
@@ -30,6 +30,12 @@ class ProductSizeInline(nested_admin.NestedTabularInline):
     model = productsizes
     extra = 1
     inlines = [ProductSizeColorInline]
+
+class OfferInline(nested_admin.NestedTabularInline):
+    model = Offer
+    extra = 1
+    fields = ['title', 'description', 'new_price', 'start_date', 'end_date']
+    readonly_fields = ['old_price', 'is_active', 'percentage_off']
 
 
 @admin.register(Product)
