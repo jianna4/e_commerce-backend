@@ -141,8 +141,7 @@ class Offer(models.Model):
     new_price=models.DecimalField(max_digits=10, decimal_places=2)
     old_price = models.DecimalField(max_digits=10, decimal_places=2, editable=False, default=0)
     percentage_off = models.PositiveIntegerField(default=0, editable=False)
-    is_active = models.BooleanField(default=False, editable=False)
-
+   
     
     def save(self, *args, **kwargs):
         # Store old_price and percentage_off in the DB
