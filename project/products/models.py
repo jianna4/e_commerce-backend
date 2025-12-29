@@ -155,7 +155,9 @@ class Offer(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Offer: {self.title} for {self.product.name}"
+        if self.campaign:
+         return f"{self.campaign.title} - {self.product.name}"
+        return  {self.product.name}
     
 
     
