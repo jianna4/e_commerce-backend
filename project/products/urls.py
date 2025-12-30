@@ -28,6 +28,7 @@ urlpatterns = [
     path('orders/create/', views.order_create, name='order-create'),
 
     #offers
-    path('offers/', views.active_offers, name='offer-list'),
-   
+    path('offers/', views.active_offers, name='active-offer-list'),
+    path('offersby_campaign/', views.offers_by_campaign, name='offer-list'),
+
 ]
