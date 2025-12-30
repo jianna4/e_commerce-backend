@@ -3,12 +3,14 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
-from .models import Category, SubCategory, Product, Order
+from .models import Category, SubCategory, Product, Order , Offer
 from .serializers import (
     CategorySerializer,
     SubCategorySerializer,
     ProductSerializer,
-    OrderSerializer
+    OrderSerializer,
+    OfferSerializer,
+    MainOfferSerializer,
 )
 from django.utils import timezone
 
@@ -96,14 +98,48 @@ def product_detail(request, pk):
 @permission_classes([AllowAny])
 def active_offers(request):
     now = timezone.now()
-    # Only return products with active offers
-    products = Product.objects.filter(
-        offers__start_date__lte=now, 
-        offers__end_date__gte=now
-    ).distinct()
 
-    serializer = ProductSerializer(products, many=True)
+    offers = Offer.objects.filter(
+        campaign__start_date__lte=now,
+        campaign__end_date__gte=now
+    ).select_related(
+        'campaign',
+        'product'
+    )
+
+    serializer = OfferSerializer(offers, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+#active offers by campaign
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def offers_by_campaign(request):
+    now = timezone.now()
+
+    offers = Offer.objects.filter(
+        campaign__start_date__lte=now,
+        campaign__end_date__gte=now
+    ).select_related('campaign', 'product')
+
+    grouped = {}
+
+    for offer in offers:
+        campaign = offer.campaign
+        key = campaign.id
+
+        if key not in grouped:
+            grouped[key] = {
+                "campaign": MainOfferSerializer(campaign).data,
+                "offers": []
+            }
+
+        grouped[key]["offers"].append(
+            OfferSerializer(offer).data
+        )
+
+    return Response(grouped.values(), status=status.HTTP_200_OK)
+
+
 # --------------------
 # Orders
 # --------------------
