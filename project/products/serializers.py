@@ -26,14 +26,19 @@ class MainOfferSerializer(serializers.ModelSerializer):
 
 class OfferSerializer(serializers.ModelSerializer):
     campaign = MainOfferSerializer(read_only=True)  # ← nested campaign info
-    product_name = serializers.CharField(source='product.name', read_only=True)
+    product = serializers.SerializerMethodField()
+    
+
 
     class Meta:
         model = Offer
         fields = [
             'id', 'new_price', 'old_price', 'percentage_off',
-            'campaign', 'product_name'
+            'campaign', 'product'
         ]
+    def get_product(self, obj):
+        
+        return ProductSerializer(obj.product, context=self.context).data
 
 # --------------------
 # ProductColor Serializer
