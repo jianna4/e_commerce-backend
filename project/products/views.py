@@ -225,7 +225,7 @@ def sub_category_insertion(request ,pk=None):
         #data['user']= request.user.id
         serializer= SubCategorySerializer(data=data)
         if serializer.is_valid():
-         serializer.save(user=request.user)
+         serializer.save()
          return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'GET':
