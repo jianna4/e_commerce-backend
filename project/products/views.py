@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
-from .models import Category, SubCategory, Product, Order , Offer
+from .models import Category, SubCategory, Product, Order , Offer ,MainOffer
 from .serializers import (
     CategorySerializer,
     SubCategorySerializer,
@@ -18,9 +18,9 @@ from rest_framework.parsers import MultiPartParser, FormParser
 
 
 
-# --------------------
+
 # Categories
-# --------------------
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def category_list(request):
@@ -267,13 +267,95 @@ def sub_category_insertion(request ,pk=None):
 
     
 #product insertion
+@parser_classes([MultiPartParser, FormParser])
 @api_view(['ALL'])
-@permission_classes([IsAuthenticated])
-def Product_insertion(request):
-    data=request.data.copy()
-    data['user']= request.user.id
-    serializer= ProductSerializer(data=data)
-    if serializer.is_valid():
-        serializer.save(user=request.user)
-        return Response(serializer.data,status=status.HTTP_201_CREATED)
-    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+#@permission_classes([IsAuthenticated])
+def Product_insertion(request, pk=None):
+    if request.method == 'POST':
+        data=request.data.copy()
+        #data['user']= request.user.id
+        serializer= ProductSerializer(data=data)
+        if serializer.is_valid():
+         serializer.save()
+         return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'GET':
+        if pk:
+            try:
+                product = Product.objects.get(pk=pk)
+                serializer = ProductSerializer(product)
+                return Response(serializer.data)
+            except Product.DoesNotExist:
+                return Response({"detail": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            categories = Product.objects.all()
+            serializer = ProductSerializer(categories, many=True)
+            return Response(serializer.data)
+    elif request.method in ['PUT', 'PATCH']:
+        try:
+            product = Product.objects.get(pk=pk)
+        except Product.DoesNotExist:
+            return Response({"detail": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        data=request.data.copy()
+        #data['user']= request.user.id
+        serializer = ProductSerializer(product, data=data, partial=(request.method == 'PATCH'))
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'DELETE':
+        try:
+            product = Product.objects.get(pk=pk)
+        except Product.DoesNotExist:
+            return Response({"detail": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        product.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+#Adminoffer
+
+@api_view(['GET', 'POST','PULL','DELETE','PATCH'])
+def mainoffer_admin(request,pk=None):
+    if request.method == 'POST':
+        data=request.data.copy()
+        #data['user']= request.user.id
+        serializer= MainOfferSerializer(data=data)
+        if serializer.is_valid():
+         serializer.save()
+         return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'GET':
+        if pk:
+            try:
+                mainOffer = MainOffer.objects.get(pk=pk)
+                serializer = MainOfferSerializer(mainOffer)
+                return Response(serializer.data)
+            except MainOffer.DoesNotExist:
+                return Response({"detail": "MainOffer not found"}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            categories = MainOffer.objects.all()
+            serializer = MainOfferSerializer(categories, many=True)
+            return Response(serializer.data)
+    elif request.method in ['PUT', 'PATCH']:
+        try:
+            mainOffer = MainOffer.objects.get(pk=pk)
+        except MainOffer.DoesNotExist:
+            return Response({"detail": "MainOffer not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        data=request.data.copy()
+        #data['user']= request.user.id
+        serializer = MainOfferSerializer(mainOffer, data=data, partial=(request.method == 'PATCH'))
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'DELETE':
+        try:
+            mainOffer = MainOffer.objects.get(pk=pk)
+        except MainOffer.DoesNotExist:
+            return Response({"detail": "MainOffer not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        mainOffer.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
