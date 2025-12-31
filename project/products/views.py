@@ -217,17 +217,55 @@ def category_insertion(request, pk=None):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 #subcategory list
-@api_view(['ALL'])
-@permission_classes([IsAuthenticated])
-def sub_category_insertion(request):
-    data=request.data.copy()
-    data['user']= request.user.id
-    serializer= SubCategorySerializer(data=data)
-    if serializer.is_valid():
-        serializer.save(user=request.user)
-        return Response(serializer.data,status=status.HTTP_201_CREATED)
-    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+@api_view(['POST','GET','PUT','DELETE','PATCH'])
+#@permission_classes([IsAuthenticated])
+def sub_category_insertion(request ,pk=None):
+    if request.method == 'POST':
+        data=request.data.copy()
+        #data['user']= request.user.id
+        serializer= SubCategorySerializer(data=data)
+        if serializer.is_valid():
+         serializer.save(user=request.user)
+         return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'GET':
+        if pk:
+            try:
+                category = SubCategory.objects.get(pk=pk)
+                serializer = SubCategorySerializer(category)
+                return Response(serializer.data)
+            except SubCategory.DoesNotExist:
+                return Response({"detail": "SubCategory not found"}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            categories = SubCategory.objects.all()
+            serializer = SubCategorySerializer(categories, many=True)
+            return Response(serializer.data)
+    elif request.method in ['PUT', 'PATCH']:
+        try:
+            category = SubCategory.objects.get(pk=pk)
+        except SubCategory.DoesNotExist:
+            return Response({"detail": "SubCategory not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        data=request.data.copy()
+        #data['user']= request.user.id
+        serializer = SubCategorySerializer(category, data=data, partial=(request.method == 'PATCH'))
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'DELETE':
+        try:
+            category = SubCategory.objects.get(pk=pk)
+        except SubCategory.DoesNotExist:
+            return Response({"detail": "SubCategory not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        category.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+
+
+    
 #product insertion
 @api_view(['ALL'])
 @permission_classes([IsAuthenticated])
