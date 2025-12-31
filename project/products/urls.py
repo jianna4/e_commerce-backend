@@ -33,11 +33,15 @@ urlpatterns = [
 
     #CATEGORY ADMIN
     path('categoryin/', views.category_insertion,name='categoryin'),
+    path('categoryin/<int:pk>/', views.category_insertion,name='categoryin'),
 
     #subcategory admin
     path('subcategoryin/', views.sub_category_insertion,name='subcategoryin'),
+    path('subcategoryin/<int:pk>/', views.sub_category_insertion,name='subcategoryin'),
 
     #Products admin
+    path('productin/', views.Product_insertion,name='productin'),
+    path('productin/<int:pk>/', views.Product_insertion,name='productin')
 
 
 ]

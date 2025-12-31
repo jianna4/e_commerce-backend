@@ -13,6 +13,8 @@ from .serializers import (
     MainOfferSerializer,
 )
 from django.utils import timezone
+from rest_framework.decorators import parser_classes
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 
@@ -166,19 +168,56 @@ def order_create(request):
 #Now for the admin sector 
 
 #CATEGORY LIST
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def category_insertion(request):
-    data=request.data.copy()
-    data['user']= request.user.id
-    serializer= CategorySerializer(data=data)
-    if serializer.is_valid():
-        serializer.save(user=request.user)
-        return Response(serializer.data,status=status.HTTP_201_CREATED)
-    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+@api_view(['POST','GET','PUT','DELETE','PATCH'])
+@parser_classes([MultiPartParser, FormParser])
+#@permission_classes([IsAuthenticated])
+def category_insertion(request, pk=None):
+    
+    if request.method == 'GET':
+        if pk:
+            try:
+                category = Category.objects.get(pk=pk)
+                serializer = CategorySerializer(category)
+                return Response(serializer.data)
+            except Category.DoesNotExist:
+                return Response({"detail": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            categories = Category.objects.all()
+            serializer = CategorySerializer(categories, many=True)
+            return Response(serializer.data)
+    elif request.method == 'POST':
+        data=request.data.copy()
+        #data['user']= request.user.id
+        serializer = CategorySerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method in ['PUT', 'PATCH']:
+        try:
+            category = Category.objects.get(pk=pk)
+        except Category.DoesNotExist:
+            return Response({"detail": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        data=request.data.copy()
+        #data['user']= request.user.id
+        serializer = CategorySerializer(category, data=data, partial=(request.method == 'PATCH'))
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'DELETE':
+        try:
+            category = Category.objects.get(pk=pk)
+        except Category.DoesNotExist:
+            return Response({"detail": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        category.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 #subcategory list
-@api_view(['POST'])
+@api_view(['ALL'])
 @permission_classes([IsAuthenticated])
 def sub_category_insertion(request):
     data=request.data.copy()
@@ -190,7 +229,7 @@ def sub_category_insertion(request):
     return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 #product insertion
-@api_view(['POST'])
+@api_view(['ALL'])
 @permission_classes([IsAuthenticated])
 def Product_insertion(request):
     data=request.data.copy()
