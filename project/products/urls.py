@@ -31,4 +31,13 @@ urlpatterns = [
     path('offers/', views.active_offers, name='active-offer-list'),
     path('offersby_campaign/', views.offers_by_campaign, name='offer-list'),
 
+    #CATEGORY ADMIN
+    path('categoryin/', views.category_insertion,name='categoryin'),
+
+    #subcategory admin
+    path('subcategoryin/', views.sub_category_insertion,name='subcategoryin'),
+
+    #Products admin
+
+
 ]

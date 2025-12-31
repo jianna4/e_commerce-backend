@@ -15,6 +15,18 @@ from django.utils import timezone
 
 
 #offer serializer
+# to reduce the nested depth we create a simplified product serializer for offers
+class ProductInOfferSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = [
+            'id',
+            'name',
+            'slug',
+            'image',
+            'price',
+            'stock'
+        ]
 
 
 class MainOfferSerializer(serializers.ModelSerializer):
@@ -26,7 +38,7 @@ class MainOfferSerializer(serializers.ModelSerializer):
 
 class OfferSerializer(serializers.ModelSerializer):
     campaign = MainOfferSerializer(read_only=True)  # ← nested campaign info
-    product = serializers.SerializerMethodField()
+    product = ProductInOfferSerializer(read_only=True)  # ← simplified product info
     
 
 
@@ -36,10 +48,7 @@ class OfferSerializer(serializers.ModelSerializer):
             'id', 'new_price', 'old_price', 'percentage_off',
             'campaign', 'product'
         ]
-    def get_product(self, obj):
-        
-        return ProductSerializer(obj.product, context=self.context).data
-
+    
 # --------------------
 # ProductColor Serializer
 # --------------------

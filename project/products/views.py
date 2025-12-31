@@ -161,3 +161,42 @@ def order_create(request):
         serializer.save(user=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+#Now for the admin sector 
+
+#CATEGORY LIST
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def category_insertion(request):
+    data=request.data.copy()
+    data['user']= request.user.id
+    serializer= CategorySerializer(data=data)
+    if serializer.is_valid():
+        serializer.save(user=request.user)
+        return Response(serializer.data,status=status.HTTP_201_CREATED)
+    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+#subcategory list
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def sub_category_insertion(request):
+    data=request.data.copy()
+    data['user']= request.user.id
+    serializer= SubCategorySerializer(data=data)
+    if serializer.is_valid():
+        serializer.save(user=request.user)
+        return Response(serializer.data,status=status.HTTP_201_CREATED)
+    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+#product insertion
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def Product_insertion(request):
+    data=request.data.copy()
+    data['user']= request.user.id
+    serializer= ProductSerializer(data=data)
+    if serializer.is_valid():
+        serializer.save(user=request.user)
+        return Response(serializer.data,status=status.HTTP_201_CREATED)
+    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
