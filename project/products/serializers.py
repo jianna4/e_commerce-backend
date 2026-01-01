@@ -183,3 +183,16 @@ class OrderSerializer(serializers.ModelSerializer):
         # update order total_price after adding items
         order.update_total_price()
         return order
+
+#ADMIN
+# For WRITING (CREATE/UPDATE) - accepts ID only
+class SubCategoryWriteSerializer(serializers.ModelSerializer):
+    category = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all()
+    )
+    
+    class Meta:
+        model = SubCategory
+        fields = ['id', 'name', 'category']
+        # NO depth = 1 here to avoid nested representation during write operations
+        #LESSON LEANT JUST WRITEDIFF SERIALIZS FO RREAR WRITE,THEONE FOR READCAN CONTAIN FULL OBJECTS WHILE THE WRITE ONE ONLY IDS

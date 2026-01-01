@@ -11,6 +11,7 @@ from .serializers import (
     OrderSerializer,
     OfferSerializer,
     MainOfferSerializer,
+    SubCategoryWriteSerializer,
 )
 from django.utils import timezone
 from rest_framework.decorators import parser_classes
@@ -223,7 +224,7 @@ def sub_category_insertion(request ,pk=None):
     if request.method == 'POST':
         data=request.data.copy()
         #data['user']= request.user.id
-        serializer= SubCategorySerializer(data=data)
+        serializer= SubCategoryWriteSerializer(data=data)
         if serializer.is_valid():
          serializer.save()
          return Response(serializer.data,status=status.HTTP_201_CREATED)
@@ -232,13 +233,13 @@ def sub_category_insertion(request ,pk=None):
         if pk:
             try:
                 category = SubCategory.objects.get(pk=pk)
-                serializer = SubCategorySerializer(category)
+                serializer = SubCategoryWriteSerializer(category)
                 return Response(serializer.data)
             except SubCategory.DoesNotExist:
                 return Response({"detail": "SubCategory not found"}, status=status.HTTP_404_NOT_FOUND)
         else:
             categories = SubCategory.objects.all()
-            serializer = SubCategorySerializer(categories, many=True)
+            serializer = SubCategoryWriteSerializer(categories, many=True)
             return Response(serializer.data)
     elif request.method in ['PUT', 'PATCH']:
         try:
@@ -248,7 +249,7 @@ def sub_category_insertion(request ,pk=None):
         
         data=request.data.copy()
         #data['user']= request.user.id
-        serializer = SubCategorySerializer(category, data=data, partial=(request.method == 'PATCH'))
+        serializer = SubCategoryWriteSerializer(category, data=data, partial=(request.method == 'PATCH'))
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
