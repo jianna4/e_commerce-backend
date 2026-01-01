@@ -12,6 +12,7 @@ from .serializers import (
     OfferSerializer,
     MainOfferSerializer,
     SubCategoryWriteSerializer,
+    ProductWriteSerializer,
 )
 from django.utils import timezone
 from rest_framework.decorators import parser_classes
@@ -269,13 +270,13 @@ def sub_category_insertion(request ,pk=None):
     
 #product insertion
 @parser_classes([MultiPartParser, FormParser])
-@api_view(['ALL'])
+@api_view(['POST','GET','PUT','DELETE','PATCH'])
 #@permission_classes([IsAuthenticated])
 def Product_insertion(request, pk=None):
     if request.method == 'POST':
         data=request.data.copy()
         #data['user']= request.user.id
-        serializer= ProductSerializer(data=data)
+        serializer= ProductWriteSerializer(data=data)
         if serializer.is_valid():
          serializer.save()
          return Response(serializer.data,status=status.HTTP_201_CREATED)
@@ -284,13 +285,13 @@ def Product_insertion(request, pk=None):
         if pk:
             try:
                 product = Product.objects.get(pk=pk)
-                serializer = ProductSerializer(product)
+                serializer = ProductWriteSerializer(product)
                 return Response(serializer.data)
             except Product.DoesNotExist:
                 return Response({"detail": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
         else:
             categories = Product.objects.all()
-            serializer = ProductSerializer(categories, many=True)
+            serializer = ProductWriteSerializer(categories, many=True)
             return Response(serializer.data)
     elif request.method in ['PUT', 'PATCH']:
         try:
@@ -300,7 +301,7 @@ def Product_insertion(request, pk=None):
         
         data=request.data.copy()
         #data['user']= request.user.id
-        serializer = ProductSerializer(product, data=data, partial=(request.method == 'PATCH'))
+        serializer = ProductWriteSerializer(product, data=data, partial=(request.method == 'PATCH'))
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)

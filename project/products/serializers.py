@@ -137,7 +137,9 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['id', 'name', 'slug', 'description', 'image', 'is_active', 'created_at', 'subcategories']
-        # This method returns a list of subcategories for each category
+        # This method returns a list of subcategories for each categor
+
+        
 
 
 
@@ -196,3 +198,17 @@ class SubCategoryWriteSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'category']
         # NO depth = 1 here to avoid nested representation during write operations
         #LESSON LEANT JUST WRITEDIFF SERIALIZS FO RREAR WRITE,THEONE FOR READCAN CONTAIN FULL OBJECTS WHILE THE WRITE ONE ONLY IDS
+
+
+#FRO WRITING PRODCTS
+class ProductWriteSerializer(serializers.ModelSerializer):
+    subcategory=serializers.PrimaryKeyRelatedField(
+        queryset=SubCategory.objects.all()
+    
+    )
+    class Meta:
+        model = Product
+        fields = [
+            'id', 'name', 'slug', 'description',
+            'price', 'stock', 'image', 'subcategory'
+        ]
