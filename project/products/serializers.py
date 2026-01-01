@@ -212,3 +212,19 @@ class ProductWriteSerializer(serializers.ModelSerializer):
             'id', 'name', 'slug', 'description',
             'price', 'stock', 'image', 'subcategory'
         ]
+
+
+#FOR ADMIN OFFER WRITE
+class OfferWriteSerializer(serializers.ModelSerializer):
+    product = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects.all()
+    )
+    campaign = serializers.PrimaryKeyRelatedField(
+        queryset=MainOffer.objects.all()
+    )
+    class Meta:
+        model = Offer
+        fields = [
+            'id', 'new_price', 'old_price', 'percentage_off',
+            'campaign', 'product'
+        ]

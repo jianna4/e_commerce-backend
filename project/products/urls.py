@@ -37,6 +37,10 @@ urlpatterns = [
 
     #mainoffer admin
     path('mainofferin/', views.mainoffer_admin,name='mainofferin'),
-    path('mainofferin/<int:pk>/', views.mainoffer_admin,name='mainofferin')
+    path('mainofferin/<int:pk>/', views.mainoffer_admin,name='mainofferin'),
+
+    #specific offers admin
+    path('offerin/', views.offer_admin,name='offerin'),
+    path('offerin/<int:pk>/', views.offer_admin,name='offerin'),
 
 ]

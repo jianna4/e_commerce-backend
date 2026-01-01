@@ -13,6 +13,7 @@ from .serializers import (
     MainOfferSerializer,
     SubCategoryWriteSerializer,
     ProductWriteSerializer,
+    OfferWriteSerializer,
 )
 from django.utils import timezone
 from rest_framework.decorators import parser_classes
@@ -317,8 +318,8 @@ def Product_insertion(request, pk=None):
 
 
 #Adminoffer
-
-@api_view(['GET', 'POST','PULL','DELETE','PATCH'])
+@parser_classes([MultiPartParser, FormParser])
+@api_view(['GET', 'POST','PUT','DELETE','PATCH'])
 def mainoffer_admin(request,pk=None):
     if request.method == 'POST':
         data=request.data.copy()
@@ -360,4 +361,51 @@ def mainoffer_admin(request,pk=None):
             return Response({"detail": "MainOffer not found"}, status=status.HTTP_404_NOT_FOUND)
         
         mainOffer.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+#admin offer
+@parser_classes([MultiPartParser, FormParser])
+@api_view(['GET', 'POST','PUT','DELETE','PATCH'])
+def offer_admin(request,pk=None):
+    if request.method == 'POST':
+        data=request.data.copy()
+        #data['user']= request.user.id
+        serializer= OfferWriteSerializer(data=data)
+        if serializer.is_valid():
+         serializer.save()
+         return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'GET':
+        if pk:
+            try:
+                offer = Offer.objects.get(pk=pk)
+                serializer = OfferWriteSerializer(offer)
+                return Response(serializer.data)
+            except Offer.DoesNotExist:
+                return Response({"detail": "Offer not found"}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            categories = Offer.objects.all()
+            serializer = OfferWriteSerializer(categories, many=True)
+            return Response(serializer.data)
+    elif request.method in ['PUT', 'PATCH']:
+        try:
+            offer = Offer.objects.get(pk=pk)
+        except Offer.DoesNotExist:
+            return Response({"detail": "Offer not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        data=request.data.copy()
+        #data['user']= request.user.id
+        serializer = OfferWriteSerializer(offer, data=data, partial=(request.method == 'PATCH'))
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'DELETE':
+        try:
+            offer = Offer.objects.get(pk=pk)
+        except Offer.DoesNotExist:
+            return Response({"detail": "Offer not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        offer.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
