@@ -143,11 +143,13 @@ class Offer(models.Model):
     new_price=models.DecimalField(max_digits=10, decimal_places=2)
     old_price = models.DecimalField(max_digits=10, decimal_places=2, editable=False, default=0)
     percentage_off = models.PositiveIntegerField(default=0, editable=False)
-   
-    
+    is_active = models.BooleanField(default=True, editable=False)
+
+
     def save(self, *args, **kwargs):
         # Store old_price and percentage_off in the DB
         self.old_price = self.product.price
+        self.is_active = self.campaign.is_active if self.campaign else False
         try:
             self.percentage_off = round((self.old_price - self.new_price) / self.old_price * 100)
         except ZeroDivisionError:

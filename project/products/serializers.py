@@ -46,7 +46,7 @@ class OfferSerializer(serializers.ModelSerializer):
         model = Offer
         fields = [
             'id', 'new_price', 'old_price', 'percentage_off',
-            'campaign', 'product'
+            'campaign', 'product', 'is_active'
         ]
     
 # --------------------
@@ -226,5 +226,5 @@ class OfferWriteSerializer(serializers.ModelSerializer):
         model = Offer
         fields = [
             'id', 'new_price', 'old_price', 'percentage_off',
-            'campaign', 'product'
+            'campaign', 'product', 'is_active'
         ]
