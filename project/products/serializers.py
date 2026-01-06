@@ -39,6 +39,7 @@ class MainOfferSerializer(serializers.ModelSerializer):
 class OfferSerializer(serializers.ModelSerializer):
     campaign = MainOfferSerializer(read_only=True)  # ← nested campaign info
     product = ProductInOfferSerializer(read_only=True)  # ← simplified product info
+    is_active = serializers.ReadOnlyField()
     
 
 
@@ -222,6 +223,7 @@ class OfferWriteSerializer(serializers.ModelSerializer):
     campaign = serializers.PrimaryKeyRelatedField(
         queryset=MainOffer.objects.all()
     )
+    is_active = serializers.ReadOnlyField()
     class Meta:
         model = Offer
         fields = [
