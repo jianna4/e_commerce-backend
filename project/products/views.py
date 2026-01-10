@@ -226,7 +226,7 @@ def sub_category_insertion(request ,pk=None):
     if request.method == 'POST':
         data=request.data.copy()
         #data['user']= request.user.id
-        serializer= SubCategorySerializer(data=data)
+        serializer= SubCategoryWriteSerializer(data=data)
         if serializer.is_valid():
          serializer.save()
          return Response(serializer.data,status=status.HTTP_201_CREATED)
