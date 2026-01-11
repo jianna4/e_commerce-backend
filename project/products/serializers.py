@@ -86,6 +86,8 @@ class ProductSerializer(serializers.ModelSerializer):
     sizes = ProductSizeSerializer(many=True, read_only=True)
     display_price=serializers.SerializerMethodField()
     active_offer = serializers.SerializerMethodField()
+
+
     class Meta:
         model = Product
         fields = [
@@ -203,8 +205,10 @@ class SubCategoryWriteSerializer(serializers.ModelSerializer):
 
 #FRO WRITING PRODCTS
 class ProductWriteSerializer(serializers.ModelSerializer):
+    
     subcategory=serializers.PrimaryKeyRelatedField(
         queryset=SubCategory.objects.all()
+    
     
     )
     class Meta:
@@ -213,7 +217,34 @@ class ProductWriteSerializer(serializers.ModelSerializer):
             'id', 'name', 'slug', 'description',
             'price', 'stock', 'image', 'subcategory'
         ]
+    
 
+class ProductReadSerializer(serializers.ModelSerializer):
+    subcategory = serializers.SerializerMethodField()
+    category = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Product
+        fields = [
+            'id', 'name', 'slug', 'description',
+            'price', 'stock', 'image',
+            'category', 'subcategory'
+        ]
+
+    def get_category(self, obj):
+        if obj.subcategory:
+            return {
+                "id": obj.subcategory.category.id,
+                "name": obj.subcategory.category.name
+            }
+        return None
+    def get_subcategory(self, obj):
+        if obj.subcategory:
+            return {
+                "id": obj.subcategory.id,
+                "name": obj.subcategory.name
+            }
+        return None
 
 #FOR ADMIN OFFER WRITE
 class OfferWriteSerializer(serializers.ModelSerializer):

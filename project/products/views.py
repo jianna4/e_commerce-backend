@@ -14,6 +14,7 @@ from .serializers import (
     SubCategoryWriteSerializer,
     ProductWriteSerializer,
     OfferWriteSerializer,
+    ProductReadSerializer
 )
 from django.utils import timezone
 from rest_framework.decorators import parser_classes
@@ -286,13 +287,13 @@ def Product_insertion(request, pk=None):
         if pk:
             try:
                 product = Product.objects.get(pk=pk)
-                serializer = ProductWriteSerializer(product)
+                serializer = ProductReadSerializer(product)
                 return Response(serializer.data)
             except Product.DoesNotExist:
                 return Response({"detail": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
         else:
             categories = Product.objects.all()
-            serializer = ProductWriteSerializer(categories, many=True)
+            serializer = ProductReadSerializer(categories, many=True)
             return Response(serializer.data)
     elif request.method in ['PUT', 'PATCH']:
         try:
