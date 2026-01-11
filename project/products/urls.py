@@ -43,4 +43,8 @@ urlpatterns = [
     path('offerin/', views.offer_admin,name='offerin'),
     path('offerin/<int:pk>/', views.offer_admin,name='offerin'),
 
+    # Product Detail Insertion
+    path('product_detail_in/', views.Product_detail_insertion,name='product_detail_in'),
+    path('product_detail_in/<int:pk>/', views.Product_detail_insertion,name='product_detail_in'),
+
 ]

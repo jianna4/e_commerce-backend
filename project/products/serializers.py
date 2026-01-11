@@ -261,3 +261,40 @@ class OfferWriteSerializer(serializers.ModelSerializer):
             'id', 'new_price', 'old_price', 'percentage_off',
             'campaign', 'product', 'is_active'
         ]
+
+
+# PRODUCT Detail
+class ProductDetailSerializer(serializers.ModelSerializer):
+    images = ProductImageSerializer(many=True)
+    sizes = ProductSizeSerializer(many=True)
+    display_price=serializers.SerializerMethodField()
+    active_offer = serializers.SerializerMethodField()
+
+
+    class Meta:
+        model = Product
+        fields = [
+            'id', 'name', 'slug', 'description','display_price',
+            'price', 'stock', 'created_at', 'updated_at', 'image',
+            'likes_count', 'views_count', 'sizes', 'images', 'offers', 'active_offer'
+        ]
+
+    def _get_active_offer_obj(self, product):
+        """Return the Offer object if active, else None."""
+        now = timezone.now()
+        return Offer.objects.filter(
+            product=product,
+            campaign__start_date__lte=now,
+            campaign__end_date__gte=now
+        ).select_related('campaign').first()
+
+    def get_display_price(self, obj):
+        offer = self._get_active_offer_obj(obj)
+        return str(offer.new_price) if offer else str(obj.price)
+    def get_active_offer(self, obj):
+   
+     offer = self._get_active_offer_obj(obj)
+     if offer:
+        return OfferSerializer(offer, context=self.context).data
+     return None
+
