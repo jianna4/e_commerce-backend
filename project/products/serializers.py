@@ -298,3 +298,36 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         return OfferSerializer(offer, context=self.context).data
      return None
 
+#write product details
+    
+
+class ProductColorSerializer(serializers.ModelSerializer):
+    productsize= serializers.PrimaryKeyRelatedField(
+        queryset= productsizes.objects.all()
+    )
+    class Meta:
+        model = ProductSizeColor
+        fields = ['id','productsize', 'color_name', 'hex_code', 'quantity']
+
+
+
+class ProductImageSerializer(serializers.ModelSerializer):
+    product = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects.all()
+    )
+    class Meta:
+        model = ProductImage
+        fields = ['id','product', 'image']
+
+
+
+
+
+class ProductSizeSerializer(serializers.ModelSerializer):
+    product = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects.all()
+    )
+    class Meta:
+        model = productsizes
+        fields = ['id', 'waist_shoe_size','hips', 'height', 'product']
+
