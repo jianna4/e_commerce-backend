@@ -263,55 +263,20 @@ class OfferWriteSerializer(serializers.ModelSerializer):
         ]
 
 
-# PRODUCT Detail
-class ProductDetailSerializer(serializers.ModelSerializer):
-    images = ProductImageSerializer(many=True)
-    sizes = ProductSizeSerializer(many=True)
-    display_price=serializers.SerializerMethodField()
-    active_offer = serializers.SerializerMethodField()
-
-
-    class Meta:
-        model = Product
-        fields = [
-            'id', 'name', 'slug', 'description','display_price',
-            'price', 'stock', 'created_at', 'updated_at', 'image',
-            'likes_count', 'views_count', 'sizes', 'images', 'offers', 'active_offer'
-        ]
-
-    def _get_active_offer_obj(self, product):
-        """Return the Offer object if active, else None."""
-        now = timezone.now()
-        return Offer.objects.filter(
-            product=product,
-            campaign__start_date__lte=now,
-            campaign__end_date__gte=now
-        ).select_related('campaign').first()
-
-    def get_display_price(self, obj):
-        offer = self._get_active_offer_obj(obj)
-        return str(offer.new_price) if offer else str(obj.price)
-    def get_active_offer(self, obj):
-   
-     offer = self._get_active_offer_obj(obj)
-     if offer:
-        return OfferSerializer(offer, context=self.context).data
-     return None
-
 #write product details
     
 
-class ProductColorSerializer(serializers.ModelSerializer):
-    productsize= serializers.PrimaryKeyRelatedField(
+class ProductColorSerializerwrite(serializers.ModelSerializer):
+    product_size= serializers.PrimaryKeyRelatedField(
         queryset= productsizes.objects.all()
     )
     class Meta:
         model = ProductSizeColor
-        fields = ['id','productsize', 'color_name', 'hex_code', 'quantity']
+        fields = ['id','product_size', 'color_name', 'hex_code', 'quantity']
 
 
 
-class ProductImageSerializer(serializers.ModelSerializer):
+class ProductImageSerializerwrite(serializers.ModelSerializer):
     product = serializers.PrimaryKeyRelatedField(
         queryset=Product.objects.all()
     )
@@ -323,7 +288,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 
 
-class ProductSizeSerializer(serializers.ModelSerializer):
+class ProductSizeSerializerwrite(serializers.ModelSerializer):
     product = serializers.PrimaryKeyRelatedField(
         queryset=Product.objects.all()
     )

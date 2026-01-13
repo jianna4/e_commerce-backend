@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
-from .models import Category, SubCategory, Product, Order , Offer ,MainOffer
+from .models import Category, SubCategory, Product, Order , Offer ,MainOffer,productsizes,ProductSizeColor,ProductImage
 from .serializers import (
     CategorySerializer,
     SubCategorySerializer,
@@ -15,7 +15,9 @@ from .serializers import (
     ProductWriteSerializer,
     OfferWriteSerializer,
     ProductReadSerializer,
-    ProductDetailSerializer,
+    ProductColorSerializerwrite,
+    ProductImageSerializerwrite,
+    ProductSizeSerializerwrite,
 )
 from django.utils import timezone
 from rest_framework.decorators import parser_classes
@@ -317,54 +319,171 @@ def Product_insertion(request, pk=None):
         
         product.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
 
 
-#product details
+#productimagewirte
+
 @parser_classes([MultiPartParser, FormParser])
-@api_view(['POST','GET','PUT','DELETE','PATCH'])
-#@permission_classes([IsAuthenticated])
-def Product_detail_insertion(request, pk=None):
+@api_view(['POST', 'GET', 'PUT', 'PATCH', 'DELETE'])
+def Product_Image_insertion(request, pk=None):
+
+    # CREATE
     if request.method == 'POST':
-        data=request.data.copy()
-        #data['user']= request.user.id
-        serializer= ProductDetailSerializer(data=data)
+        serializer = ProductImageSerializerwrite(data=request.data)
         if serializer.is_valid():
-         serializer.save()
-         return Response(serializer.data,status=status.HTTP_201_CREATED)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-    elif request.method == 'GET':
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # READ
+    if request.method == 'GET':
         if pk:
             try:
-                product = Product.objects.get(pk=pk)
-                serializer = ProductDetailSerializer(product)
+                image = ProductImage.objects.get(pk=pk)
+                serializer = ProductImageSerializerwrite(image)
                 return Response(serializer.data)
-            except Product.DoesNotExist:
-                return Response({"detail": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
-        else:
-            categories = Product.objects.all()
-            serializer = ProductDetailSerializer(categories, many=True)
-            return Response(serializer.data)
-    elif request.method in ['PUT', 'PATCH']:
+            except ProductImage.DoesNotExist:
+                return Response({"detail": "Product image not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        images = ProductImage.objects.all()
+        serializer = ProductImageSerializerwrite(images, many=True)
+        return Response(serializer.data)
+
+    # UPDATE
+    if request.method in ['PUT', 'PATCH']:
         try:
-            product = Product.objects.get(pk=pk)
-        except Product.DoesNotExist:
-            return Response({"detail": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
-        
-        data=request.data.copy()
-        #data['user']= request.user.id
-        serializer = ProductDetailSerializer(product, data=data, partial=(request.method == 'PATCH'))
+            image = ProductImage.objects.get(pk=pk)
+        except ProductImage.DoesNotExist:
+            return Response({"detail": "Product image not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ProductImageSerializerwrite(
+            image,
+            data=request.data,
+            partial=(request.method == 'PATCH')
+        )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    elif request.method == 'DELETE':
+
+    # DELETE
+    if request.method == 'DELETE':
         try:
-            product = Product.objects.get(pk=pk)
-        except Product.DoesNotExist:
-            return Response({"detail": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
-        
-        product.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+            image = ProductImage.objects.get(pk=pk)
+            image.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except ProductImage.DoesNotExist:
+            return Response({"detail": "Product image not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+#product sizes write
+@parser_classes([MultiPartParser, FormParser])
+@api_view(['POST', 'GET', 'PUT', 'PATCH', 'DELETE'])
+def Product_size_insertion(request, pk=None):
+
+    # CREATE
+    if request.method == 'POST':
+        serializer = ProductSizeSerializerwrite(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # READ
+    if request.method == 'GET':
+        if pk:
+            try:
+                size = productsizes.objects.get(pk=pk)
+                serializer = ProductSizeSerializerwrite(size)
+                return Response(serializer.data)
+            except productsizes.DoesNotExist:
+                return Response({"detail": "Product size not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        sizes = productsizes.objects.all()
+        serializer = ProductSizeSerializerwrite(sizes, many=True)
+        return Response(serializer.data)
+
+    # UPDATE
+    if request.method in ['PUT', 'PATCH']:
+        try:
+            size = productsizes.objects.get(pk=pk)
+        except productsizes.DoesNotExist:
+            return Response({"detail": "Product size not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ProductSizeSerializerwrite(
+            size,
+            data=request.data,
+            partial=(request.method == 'PATCH')
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # DELETE
+    if request.method == 'DELETE':
+        try:
+            size = productsizes.objects.get(pk=pk)
+            size.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except productsizes.DoesNotExist:
+            return Response({"detail": "Product size not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+#product colorwrite
+@parser_classes([MultiPartParser, FormParser])
+@api_view(['POST', 'GET', 'PUT', 'PATCH', 'DELETE'])
+def Product_color_insertion(request, pk=None):
+
+    # CREATE
+    if request.method == 'POST':
+        serializer = ProductColorSerializerwrite(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # READ
+    if request.method == 'GET':
+        if pk:
+            try:
+                color = ProductSizeColor.objects.get(pk=pk)
+                serializer = ProductColorSerializerwrite(color)
+                return Response(serializer.data)
+            except ProductSizeColor.DoesNotExist:
+                return Response({"detail": "Product color not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        colors = ProductSizeColor.objects.all()
+        serializer = ProductColorSerializerwrite(colors, many=True)
+        return Response(serializer.data)
+
+    # UPDATE
+    if request.method in ['PUT', 'PATCH']:
+        try:
+            color = ProductSizeColor.objects.get(pk=pk)
+        except ProductSizeColor.DoesNotExist:
+            return Response({"detail": "Product color not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ProductColorSerializerwrite(
+            color,
+            data=request.data,
+            partial=(request.method == 'PATCH')
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # DELETE
+    if request.method == 'DELETE':
+        try:
+            color = ProductSizeColor.objects.get(pk=pk)
+            color.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except ProductSizeColor.DoesNotExist:
+            return Response({"detail": "Product color not found"}, status=status.HTTP_404_NOT_FOUND)
+
 
 #Adminoffer
 @parser_classes([MultiPartParser, FormParser])

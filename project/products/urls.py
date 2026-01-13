@@ -43,8 +43,16 @@ urlpatterns = [
     path('offerin/', views.offer_admin,name='offerin'),
     path('offerin/<int:pk>/', views.offer_admin,name='offerin'),
 
-    # Product Detail Insertion
-    path('product_detail_in/', views.Product_detail_insertion,name='product_detail_in'),
-    path('product_detail_in/<int:pk>/', views.Product_detail_insertion,name='product_detail_in'),
+    #productimages insertion
+    path('product_image_in/', views.Product_Image_insertion,name="p_m_in"),
+    path('product_image_in/<int:pk>/' , views.Product_Image_insertion,name = "p_m_in"), 
+
+    #productcolors insertion
+    path('product_color_in/', views.Product_color_insertion,name="p_m_in"),
+    path('product_color_in/<int:pk>/' , views.Product_color_insertion,name = "p_m_in"), 
+
+    #productsizes insertion
+    path('product_size_in/', views.Product_size_insertion,name="p_m_in"),
+    path('product_size_in/<int:pk>/' , views.Product_size_insertion,name = "p_m_in"), 
 
 ]
