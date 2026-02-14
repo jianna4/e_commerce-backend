@@ -575,3 +575,108 @@ def offer_admin(request,pk=None):
         
         offer.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+
+
+#Order
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def add_to_cart(request):
+    variant_id = request.data.get("product_variant")
+    quantity = int(request.data.get("quantity", 1))
+
+    try:
+        variant = ProductSizeColor.objects.get(id=variant_id)
+    except ProductSizeColor.DoesNotExist:
+        return Response({"error": "Variant not found"}, status=404)
+
+    if quantity > variant.quantity:
+        return Response({"error": "Not enough stock"}, status=400)
+
+    # 🔹 Create or get cart
+    order, created = Order.objects.get_or_create(
+        user=request.user,
+        status="cart"
+    )
+
+    item, created = OrderItem.objects.get_or_create(
+        order=order,
+        product_variant=variant,
+        defaults={
+            "quantity": quantity,
+            "price": variant.product_size.product.price
+        }
+    )
+
+    if not created:
+        item.quantity += quantity
+        item.save()
+
+    order.update_total_price()
+
+    return Response(OrderSerializer(order).data)
+
+
+#now lock the cart and prepare it for payment
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def checkout(request):
+
+    try:
+        order = Order.objects.get(
+            user=request.user,
+            status="cart"
+        )
+    except Order.DoesNotExist:
+        return Response({"error": "No active cart"}, status=404)
+
+    if order.items.count() == 0:
+        return Response({"error": "Cart is empty"}, status=400)
+
+    order.status = "pending"
+    order.save()
+
+    return Response({
+        "message": "Order moved to pending. Proceed to payment.",
+        "order_id": order.id
+    })
+
+
+#payment 
+from django.db import transaction
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+@transaction.atomic
+def payment_success(request):
+
+    order_id = request.data.get("order_id")
+
+    try:
+        order = Order.objects.select_for_update().get(
+            id=order_id,
+            user=request.user,
+            status="pending"
+        )
+    except Order.DoesNotExist:
+        return Response({"error": "Order not found or not pending"}, status=404)
+
+    # 🔹 Reduce stock safely
+    for item in order.items.all():
+        variant = item.product_variant
+
+        if item.quantity > variant.quantity:
+            return Response(
+                {"error": f"Not enough stock for {variant}"},
+                status=400
+            )
+
+        variant.quantity -= item.quantity
+        variant.save()
+
+    order.status = "completed"
+    order.save()
+
+    return Response({"message": "Payment successful. Order completed."})
+

@@ -12,7 +12,7 @@ from .models import (
     OrderItem,
 )
 from django.utils import timezone
-
+from mainapp.models import User
 
 
 # to reduce the nested depth we create a simplified product serializer for offers
@@ -165,6 +165,9 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
+    user_id = serializers.IntegerField(source="user.id", read_only=True)
+    user_email = serializers.EmailField(source="user.email", read_only=True)
+
 
     class Meta:
         model = Order
