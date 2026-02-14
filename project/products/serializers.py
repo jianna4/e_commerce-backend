@@ -14,7 +14,7 @@ from .models import (
 from django.utils import timezone
 
 
-#offer serializer
+
 # to reduce the nested depth we create a simplified product serializer for offers
 class ProductInOfferSerializer(serializers.ModelSerializer):
     class Meta:
@@ -50,18 +50,14 @@ class OfferSerializer(serializers.ModelSerializer):
             'campaign', 'product', 'is_active'
         ]
     
-# --------------------
-# ProductColor Serializer
-# --------------------
+
 class ProductColorSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductSizeColor
         fields = ['id', 'color_name', 'hex_code', 'quantity']
 
 
-# --------------------
-# ProductImage Serializer
-# --------------------
+
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductImage
@@ -70,7 +66,6 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 
 
-#productsizes serializer
 
 class ProductSizeSerializer(serializers.ModelSerializer):
     colors = ProductColorSerializer(many=True, read_only=True)
@@ -79,7 +74,6 @@ class ProductSizeSerializer(serializers.ModelSerializer):
         fields = ['id', 'waist_shoe_size','hips', 'height','colors']
 
 
-#product serializer
 
 class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
@@ -117,10 +111,6 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 
-# ----------------------
-# SubCategory Serializer
-# ----------------------
-
 
 class SubCategorySerializer(serializers.ModelSerializer):
     products = ProductSerializer(many=True, read_only=True)  # <-- add this line or do asin the categoryto nestsubcategories
@@ -132,9 +122,7 @@ class SubCategorySerializer(serializers.ModelSerializer):
         depth = 1  # This will include related objects with their basic fields
 
 
-# ----------------------
-# Category Serializer
-# ----------------------
+
 class CategorySerializer(serializers.ModelSerializer):
     subcategories = SubCategorySerializer(many=True, read_only=True)
     class Meta:
@@ -142,52 +130,54 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug', 'description', 'image', 'is_active', 'created_at', 'subcategories']
         # This method returns a list of subcategories for each categor
 
-        
-
-
-
+ 
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
-    # Read-only fields for frontend display
-    product_detail = ProductSerializer(source='product', read_only=True)
-    total = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    product_name = serializers.CharField(
+        source="product_variant.product_size.product.name",
+        read_only=True
+    )
+    size = serializers.CharField(
+        source="product_variant.product_size.waist_shoe_size",
+        read_only=True
+    )
+    color = serializers.CharField(
+        source="product_variant.color_name",
+        read_only=True
+    )
 
     class Meta:
         model = OrderItem
-        fields = ['id', 'product', 'product_detail', 'quantity', 'size', 'color', 'price', 'total']
+        fields = [
+            "id",
+            "product_variant",
+            "product_name",
+            "size",
+            "color",
+            "quantity",
+            "price",
+            "total",
+        ]
+        read_only_fields = ["price", "total"]
 
-    def create(self, validated_data):
-        product = validated_data['product']
-        # Set price from product automatically
-        validated_data['price'] = product.price
-        # total will be calculated in model's save method
-        return super().create(validated_data)
 
 
-# --------------------
-# Order Serializer
-# --------------------
 class OrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(many=True)
-    total_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
-    user = serializers.PrimaryKeyRelatedField(read_only=True)  # automatically set in view
+    items = OrderItemSerializer(many=True, read_only=True)
 
     class Meta:
         model = Order
-        fields = ['id', 'user', 'status', 'total_price', 'created_at', 'updated_at', 'items']
+        fields = [
+            "id",
+            "status",
+            "total_price",
+            "created_at",
+            "items",
+        ]
+        read_only_fields = ["total_price", "created_at"]
 
-    def create(self, validated_data):
-        items_data = validated_data.pop('items')
-        order = Order.objects.create(**validated_data)
 
-        for item_data in items_data:
-            OrderItem.objects.create(order=order, **item_data)
-
-        # update order total_price after adding items
-        order.update_total_price()
-        return order
 
 #ADMIN
 # For WRITING (CREATE/UPDATE) - accepts ID only
