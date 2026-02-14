@@ -48,9 +48,8 @@ def category_detail(request, slug):
     return Response(serializer.data)
 
 
-# --------------------
 # Subcategories
-# --------------------
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def subcategory_list(request):
@@ -71,9 +70,8 @@ def subcategory_detail(request, pk):
     return Response(serializer.data)
 
 
-# --------------------
 # Products
-# --------------------
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def product_list(request):

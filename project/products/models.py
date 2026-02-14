@@ -6,9 +6,9 @@ from django.utils import timezone
 
 from django.conf import settings
 
-# --------------------
+
 # Category
-# --------------------
+
 
 class Category(models.Model):
    name = models.CharField(max_length=100, unique=True)
@@ -34,10 +34,8 @@ class SubCategory(models.Model):
         return f"{self.name} ({self.category.name})"
 
 
-
-# --------------------
 # Product
-# --------------------
+
 class Product(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True)
@@ -116,7 +114,6 @@ class ProductImage(models.Model):
         return f"Image for {self.product.name}"
 
 
-
 #offer identifications
 class MainOffer(models.Model):
     title = models.CharField(max_length=100)
@@ -169,51 +166,90 @@ class Offer(models.Model):
     
 class Order(models.Model):
     STATUS_CHOICES = (
-        ('pending', 'Pending'),
+        ('cart', 'Cart'),              # before checkout
+        ('pending', 'Pending Payment'),
         ('processing', 'Processing'),
         ('completed', 'Completed'),
         ('canceled', 'Canceled'),
     )
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders')
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='orders'
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='cart'
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0, editable=False)
+
+    total_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
 
     def update_total_price(self):
-        """Sum all order items' totals and update total_price"""
         total = sum(item.total for item in self.items.all())
         self.total_price = total
         self.save(update_fields=['total_price'])
 
     def __str__(self):
-        return f"Order {self.id} by {self.user.email}"
+        return f"Order {self.id} - {self.user.email} - {self.status}"
 
 
 
 #order item
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    order = models.ForeignKey(
+        Order,
+        related_name='items',
+        on_delete=models.CASCADE
+    )
+
+    product_variant = models.ForeignKey(
+        ProductSizeColor,
+        on_delete=models.CASCADE
+    )
+
     quantity = models.PositiveIntegerField(default=1)
-    # New optional fields
-    size = models.CharField(max_length=50, blank=True, null=True, help_text="Optional size")
-    color = models.CharField(max_length=50, blank=True, null=True, help_text="Optional color")
+
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    total = models.DecimalField(max_digits=10, decimal_places=2, editable=False,blank=True, null=True)  # new field
+    total = models.DecimalField(max_digits=10, decimal_places=2, editable=False)
 
     def save(self, *args, **kwargs):
-         # Set price from product if not already set
+
+        # Set price from product
         if not self.price:
-            self.price = self.product.price
-        # Automatically calculate total before saving
+            self.price = self.product_variant.product_size.product.price
+
+        # Check stock availability
+        if self.quantity > self.product_variant.quantity:
+            raise ValueError("Not enough stock available")
+
         self.total = self.quantity * self.price
+
         super().save(*args, **kwargs)
 
-    def __str__(self):
-        return f"{self.quantity} x {self.product.name}"
+        # Update order total
+        self.order.update_total_price()
 
+    def __str__(self):
+        return f"{self.quantity} x {self.product_variant}"
+
+def complete_order(order):
+    for item in order.items.all():
+        variant = item.product_variant
+        variant.quantity -= item.quantity
+        variant.save()
+
+    order.status = "completed"
+    order.save()
 
 #to auto update stock of products
 from django.db.models.signals import post_save, post_delete
