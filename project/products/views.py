@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
-from .models import Category, SubCategory, Product, Order , Offer ,MainOffer,productsizes,ProductSizeColor,ProductImage
+from .models import Category, SubCategory, Product, Order , Offer ,MainOffer,productsizes,ProductSizeColor,ProductImage ,OrderItem
 from .serializers import (
     CategorySerializer,
     SubCategorySerializer,
@@ -18,6 +18,7 @@ from .serializers import (
     ProductColorSerializerwrite,
     ProductImageSerializerwrite,
     ProductSizeSerializerwrite,
+    OrderItemSerializer,
 )
 from django.utils import timezone
 from rest_framework.decorators import parser_classes

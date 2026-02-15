@@ -6,3 +6,8 @@ python-dotenv
 djangorestframework-simplejwt
 pillow
 django-nested-admin
+langchain
+langchain-openai
+chromadb
+tiktoken
+python-dotenv

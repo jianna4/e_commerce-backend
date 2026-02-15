@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'mainapp',
     'products',
     'nested_admin', #for nested inlines
+    'chatapp',
 ]
 
 AUTH_USER_MODEL = 'mainapp.User'
