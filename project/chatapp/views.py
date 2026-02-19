@@ -1,11 +1,9 @@
 from django.shortcuts import render
-
-# Create your views here.
-# chatapp/views.py
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .agent import agent
+
+from .agent import agent_executor
 
 
 @api_view(["POST"])
@@ -19,8 +17,15 @@ def chat_view(request):
         )
 
     try:
-        response = agent.run(user_message)
-        return Response({"response": response})
+        result = agent_executor.invoke({
+            "messages": [
+                {"role": "user", "content": user_message}
+            ]
+        })
+
+        final_message = result["messages"][-1].content
+
+        return Response({"response": final_message})
 
     except Exception as e:
         return Response(

@@ -215,3 +215,11 @@ if DEBUG:
     # Serve media files in development
     from django.conf.urls.static import static
     urlpatterns = static(MEDIA_URL, document_root=MEDIA_ROOT)
+
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
