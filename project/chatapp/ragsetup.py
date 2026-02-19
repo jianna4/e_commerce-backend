@@ -1,35 +1,27 @@
-from langchain.document_loaders import TextLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import Chroma
-from langchain.chains import RetrievalQA
-from langchain.llms import OpenAI
-from langchain.schema import Document
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_openai import OpenAIEmbeddings
+from langchain_chroma import Chroma
+#from langchain.chains import RetrievalQA
+#from langchain_openai import ChatOpenAI
+from langchain_core.documents import Document
 import os
 
+from dotenv import load_dotenv
+load_dotenv()
+api_key = os.getenv("OPENAI_API_KEY")
 
-def build_vectordb(file_path="F:\projects\a_eccomerce\backend\project\chatapp\knowledgebase.pdf"):
-    loader=TextLoader(file_path)
-    doc=loader.load()
+loader=PyPDFLoader(r"F:\projects\a_eccomerce\backend\project\chatapp\knowledgebase.pdf")
+doc=loader.load()
 
-#lets embedd
-    splitter=RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-    splited=splitter.split_documents(doc)
+#letssplit
+splitter=RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+splited=splitter.split_documents(doc)
 
-    #nowlets embedd
-    embeddings=OpenAIEmbeddings()
-    vectorstre= Chroma.from_documents(splited, embeddings)
-    vectorstre.save_local(os.path.join(os.getcwd(), "vectordb"))
-    return "vectorstore built"
+ #nowlets embedd
+embeddings=OpenAIEmbeddings()
+vectorstore= Chroma.from_documents(splited, embeddings, persist_directory="chroma_db")
+vectorstore.persist()
+print(f"Vectorstore built and saved in {os.path.join(os.getcwd(), 'chroma_db')}")
 
 
-def quey_vectorstore(query):
-    embeddings = OpenAIEmbeddings()
-    db= Chroma.load_local("vectordb", embeddings)
-
-    LLM = OpenAI(temperature=0)
-    retriever = db.as_retriever(search_kwargs={"k": 1})
-
-    QA = RetrievalQA.from_chain_type(
-        llm=LLM,retriever=retriever, chain_type="stuff")
-    return QA.run(query)
