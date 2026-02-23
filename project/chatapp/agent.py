@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from ollama import Client, Tool
 
 # Import your tool functions
-from .langchaintools import (
+from .toolss import (
     get_categories,
     get_products,
     get_product_detail,
@@ -68,7 +68,7 @@ def run_agent(user_input: str) -> str:
 
         
         response = client.chat(
-            model="llama3.1", 
+            model="llama3.1:8b", 
             messages=conversation,
             tools=TOOLS
         )
